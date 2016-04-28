@@ -1,0 +1,59 @@
+Warning: Block unknown_D is not significant enough, removed from profile.
+Warning: Block unknown_G is not significant enough, removed from profile.
+Warning: Block unknown_C is not significant enough, removed from profile.
+Warning: Block unknown_A is not significant enough, removed from profile.
+Warning: Block unknown_B is not significant enough, removed from profile.
+Will create parameters for a EUKARYOTIC species!
+creating directory /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_3715919971/ ...
+creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_3715919971/BUSCO_SAMPLE_3715919971_parameters.cfg ...
+creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_3715919971/BUSCO_SAMPLE_3715919971_weightmatrix.txt ...
+creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_3715919971/BUSCO_SAMPLE_3715919971_metapars.cfg ...
+The necessary files for training BUSCO_SAMPLE_3715919971 have been created.
+Now, either run etraining or optimize_parameters.pl with --species=BUSCO_SAMPLE_3715919971.
+etraining quickly estimates the parameters from a file with training genes.
+optimize_augustus.pl alternates running etraining and augustus to find optimal metaparameters.
+
+# Read in 8 genbank sequences.
+Quantiles of the GC contents in the training set:
+0%	0.432
+5%	0.432	10%	0.432
+15%	0.439	20%	0.439
+25%	0.439	30%	0.446
+35%	0.446	40%	0.446
+45%	0.449	50%	0.449
+55%	0.449	60%	0.459
+65%	0.459	70%	0.459
+75%	0.463	80%	0.463
+85%	0.463	90%	0.468
+95%	0.468	100%	0.479
+HMM-training the parameters...
+i= 0 bc= (0.237, 0.263, 0.263, 0.237)
+ ** building model for exons *EXON*
+tis bin boundaries
+ number of bases in the reading frames: 2806 2814 2814
+--- frame = 0 ---    minPatSum = 233
+--- frame = 1 ---    minPatSum = 233
+--- frame = 2 ---    minPatSum = 233
+--- initial frame = 0 ---    minPatSum = 233
+--- initial frame = 1 ---    minPatSum = 233
+--- initial frame = 2 ---    minPatSum = 233
+--- internal exon terminal frame = 0 ---    minPatSum = 233
+--- internal exon terminal frame = 1 ---    minPatSum = 233
+--- internal exon terminal frame = 2 ---    minPatSum = 233
+single, initial, internal, terminal mean exon lengths :
+931	110	208	341
+single exon : 2
+initial exon 0 : 3
+initial exon 1 : 3
+initial exon 2 : 0
+internal exon 0 : 11
+internal exon 1 : 7
+internal exon 2 : 2
+terminal exon : 6
+Frequency of stop codons:
+tag:    4 (0.5)
+taa:    3 (0.375)
+tga:    1 (0.125)
+end *EXON*
+Storing parameters to file...
+Writing exon model parameters [1] to file /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_3715919971/BUSCO_SAMPLE_3715919971_exon_probs.pbl.

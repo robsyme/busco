@@ -1,0 +1,19 @@
+sample	AUGUSTUS	gene	62761	68675	0.22	+	.	g1
+sample	AUGUSTUS	transcript	62761	68675	0.22	+	.	g1.t1
+sample	AUGUSTUS	exon	62761	63926	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	exon	66254	66359	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	start_codon	66312	66314	.	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	66360	67337	0.5	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	67543	68133	0.46	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	66312	66359	0.51	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	67338	67542	0.51	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	exon	67338	67542	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	68134	68297	0.49	+	2	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	exon	68134	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	stop_codon	68295	68297	.	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	tts	68675	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	protein_match	67362	67379	7.97	+	0	target "unknown_C[1..6]"; target_start 24; transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	protein_match	67446	67541	8.63	+	0	target "unknown_D[1..32]"; target_start 52; transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	protein_match	68136	68174	7.31	+	0	target "unknown_E[1..13]"; target_start 85; transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	protein_match	68175	68258	8.64	+	0	target "unknown_F[1..28]"; target_start 98; transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	protein_match	68259	68285	12.5	+	0	target "unknown_G[1..9]"; target_start 126; transcript_id "g1.t1"; gene_id "g1";

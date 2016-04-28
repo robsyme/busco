@@ -1,0 +1,13 @@
+# BUSCO version is beta 2.0 and the dataset is sample_data/example/
+# To reproduce this run: python ./BUSCO.py -i sample_data/target.fa -o SAMPLE -l sample_data/example/ -m genome -c 1
+#
+BUSCO_7	Complete	sample	168309	169293	423.6	243
+BUSCO_1	Complete	sample	30184	31421	320.9	193
+BUSCO_5	Complete	sample	70677	71872	497.8	304
+BUSCO_4	Complete	sample	69310	70561	420.3	418
+BUSCO_3	Complete	sample	62761	68675	241.8	146
+BUSCO_8	Complete	sample	232880	234117	274.6	194
+BUSCO_2	Complete	sample	31646	47625	872.0	443
+BUSCO_6	Complete	sample	81792	89171	1676.7	920
+BUSCO_9	Missing
+BUSCO_10	Missing

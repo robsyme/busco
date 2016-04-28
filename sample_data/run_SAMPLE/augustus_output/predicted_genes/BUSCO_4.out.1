@@ -1,0 +1,101 @@
+# Please cite: Mario Stanke, Mark Diekhans, Robert Baertsch, David Haussler (2008),
+# Using native and syntenically mapped cDNA alignments to improve de novo gene finding
+# Bioinformatics 24: 637-644, doi 10.1093/bioinformatics/btn013
+# No extrinsic information on sequences given.
+# Initialising the parameters ...
+# Using protein profile unknown
+# --[0..26]--> unknown_A (25) <--[4..13]--> unknown_B (16) <--[40..496]--
+# fly version. Use default transition matrix.
+# Looks like ./tmp/sampleSAMPLE_3715919971_.temp is in fasta format.
+# We have hints for 0 sequences and for 0 of the sequences in the input set.
+#
+# ----- prediction on sequence number 1 (length = 10546, name = sample) -----
+#
+# Constraints/Hints:
+# (none)
+# Predicted genes for sequence number 1 on both strands
+# start gene g1
+sample	AUGUSTUS	gene	66254	68675	0.1	+	.	g1
+sample	AUGUSTUS	transcript	66254	68675	0.1	+	.	g1.t1
+sample	AUGUSTUS	exon	66254	66359	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	start_codon	66312	66314	.	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	66360	67337	0.76	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	67543	68133	0.62	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	66312	66359	0.76	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	67338	67542	0.75	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	exon	67338	67542	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	68134	68297	0.7	+	2	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	exon	68134	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	stop_codon	68295	68297	.	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	tts	68675	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+# protein sequence = [MFVSTVSRIAPVARSAFLANSKQYLRPLSSAIISQSQTLAAQNTTPVALLPQIRSFQTSPVTRDIDSAAKFIGAGAAT
+# VGVAGSGAGIGTVFGSLIIGYARNPSLKQQLFSYAILGFALSEAMGLFCLMMAFLLLFAF]
+# end gene g1
+###
+# start gene g2
+sample	AUGUSTUS	gene	69310	70561	0.26	+	.	g2
+sample	AUGUSTUS	transcript	69310	70561	0.26	+	.	g2.t1
+sample	AUGUSTUS	tss	69310	69310	.	+	.	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	exon	69310	70561	.	+	.	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	start_codon	69425	69427	.	+	0	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	CDS	69425	70522	1	+	0	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	stop_codon	70520	70522	.	+	0	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	tts	70561	70561	.	+	.	transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	protein_match	69473	69547	6.49	+	0	target "unknown_A[1..25]"; target_start 16; transcript_id "g2.t1"; gene_id "g2";
+sample	AUGUSTUS	protein_match	69572	69619	7.89	+	0	target "unknown_B[1..16]"; target_start 49; transcript_id "g2.t1"; gene_id "g2";
+# protein sequence = [MDFAKKILGKYGWKEGDGLGKNNTGIAAPLKASLKFDNAGLGVDRAQEFNDHWWERCFNEAASNVDVQIQQDGQVSTS
+# RRKGEEAVEISTSGFSARKLKKAKEQHASDGKTTYDNFLQTSLLTQGGNEVETSERIKVEEIEVAKVAVLTDEELFKACGGRTAHKGARHGLKLSGKI
+# ARLEQQEREMLEKLQSKLKTTPETTLVPKSGKLIEETQHKVADSVDCSVEQATKPKKKKKSRTEESVEEIAPAQLEEPIKSKKKKKDKAEKAAKEYST
+# HQAQDDPVQIKRRKNKTGKLEEEVQDVTEVEEAVKIKKKDKRQQGVEATEALSIETDEHVKSKKKRKTEDSSEETETPTKTKKKRKNKELV]
+# end gene g2
+###
+# start gene g3
+sample	AUGUSTUS	gene	70677	71839	0.05	-	.	g3
+sample	AUGUSTUS	transcript	70677	71839	0.05	-	.	g3.t1
+sample	AUGUSTUS	tts	70677	70677	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	exon	70677	71515	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	stop_codon	70742	70744	.	-	0	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	intron	71516	71572	0.58	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	intron	71657	71717	1	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	CDS	70742	71515	0.58	-	0	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	CDS	71573	71656	0.58	-	0	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	exon	71573	71656	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	CDS	71718	71783	0.77	-	0	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	exon	71718	71839	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	start_codon	71781	71783	.	-	0	transcript_id "g3.t1"; gene_id "g3";
+sample	AUGUSTUS	tss	71839	71839	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+# protein sequence = [MSDFEMEDSASGYDSGDNSDAELQAAFERGDLKPGLNLEFNGQRDKVNDVTKLLAKTEAIKMQLPWLERLDMINTLAP
+# LAPELAVQLEKHEQKRANLFKGNAKLPYIRPEEDPVLNDFKREMLFHRQAQSAVLEAIPRLHELGIKTRRPDDYFAEMAKSDEHMQKVRANLMAKQQG
+# QAKSERIKQIREQRKMGKMLAKQTKVQREAEKKDMLDKLKKFRKGKLKNLDFLEDAKALESKQKQSAENRKKRNKKFGFGGKKKGLKRNTKSSSAGLD
+# GDKSTRRQRGVKAGASVNKRLGKSRRIKAKGRK]
+# end gene g3
+###
+# start gene g4
+sample	AUGUSTUS	gene	72260	74808	0.52	+	.	g4
+sample	AUGUSTUS	transcript	72260	74808	0.52	+	.	g4.t1
+sample	AUGUSTUS	tss	72260	72260	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	72260	73782	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	start_codon	72676	72678	.	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	73783	73837	1	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	74334	74391	1	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	74647	74705	1	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	72676	73782	0.98	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	73838	74333	1	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	73838	74333	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	74392	74646	1	+	2	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	74392	74646	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	74706	74773	1	+	2	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	74706	74808	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	stop_codon	74771	74773	.	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	tts	74808	74808	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+# protein sequence = [MSASANLANVYAELMRRCGDSYTISYGAPPTYLVSTVGAAEAGKKIVLVFKEDRNGAWTKNPTTPTRTVPKKEGSADL
+# DLTGSPLKDDCLVDAIADLSINLQLDHPMAWKLEEEYQRGIPVDKARSIMCSEFLQLAEGLGSVWFLCDGSDPGQTQLLQYEFNPTHFSRGILSYQGV
+# HPAFLVTPQSLVRQHGKDPDETMIENCYQVNTHMKLRCSWTSSASLPLLVNLNDCDVALNHKFRVGDCSALTQDFMNQLRILVYIREDIVSYHTDVKQ
+# GVSREPTYRCGSGIDMDELRESINQTMTDVTSLIGHYSISNAEFDIEDVIQRAKVRRLTDLTDKLWELLKCCHSYKDLKMAFSMLFQCAARCNIVNTP
+# TNKNRLAKIITELANRRLAMPCLSGAEPLELLLEIGLEKLYKDYEFIYTESKMCSTNLLKEDSSEATSDGGSPKNLPQLRKSLHNAVRGDPTPGAGMR
+# KTLLHNHGAANSRITKYAGNDDDAGFKNSHFDELESTERISKLFQIHCTLEHLLMMHIHLNLANVYNDVCSELLKKPPKLVESIDDQLSDVMDIRLSA
+# HYVRDHLDGKDPYSRHITMRSYNKFRELKTTFYFASENVCPPNLAQCFQCDDKEMVKERTYHSWIYRKIRSLK]
+# end gene g4
+###
+# command line:
+# augustus --proteinprofile=sample_data/example/prfl/BUSCO_4.prfl --predictionStart=64425 --predictionEnd=74970 --species=fly ./tmp/sampleSAMPLE_3715919971_.temp

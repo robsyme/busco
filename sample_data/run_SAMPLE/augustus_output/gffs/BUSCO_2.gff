@@ -1,0 +1,33 @@
+sample	AUGUSTUS	gene	31646	47625	0.13	+	.	g4
+sample	AUGUSTUS	transcript	31646	47625	0.13	+	.	g4.t1
+sample	AUGUSTUS	tss	31646	31646	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	31646	32233	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	start_codon	32021	32023	.	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	32234	41058	1	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	41236	41476	0.94	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	41617	42011	0.99	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	42154	42699	0.97	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	42790	45269	0.97	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	45402	45549	0.99	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	intron	45745	46206	1	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	32021	32233	1	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	41059	41235	0.94	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	41059	41235	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	41477	41616	1	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	41477	41616	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	42012	42153	1	+	1	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	42012	42153	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	42700	42789	0.97	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	42700	42789	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	45270	45401	1	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	45270	45401	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	45550	45744	0.99	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	45550	45744	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	CDS	46207	46428	1	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	exon	46207	47625	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	stop_codon	46426	46428	.	+	0	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	tts	47625	47625	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	protein_match	45270	45401	10.4	+	0	target "unknown_A[1..44]"; target_start 254; transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	protein_match	45550	45657	8.91	+	0	target "unknown_B[1..36]"; target_start 298; transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	protein_match	45694	45741	11.9	+	0	target "unknown_C[1..16]"; target_start 346; transcript_id "g4.t1"; gene_id "g4";
+sample	AUGUSTUS	protein_match	46207	46425	9.82	+	0	target "unknown_D[1..73]"; target_start 363; transcript_id "g4.t1"; gene_id "g4";

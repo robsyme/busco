@@ -1,0 +1,5 @@
+# BUSCO version is beta 2.0 and the dataset is sample_data/example/
+# To reproduce this run: python ./BUSCO.py -i sample_data/target.fa -o SAMPLE -l sample_data/example/ -m genome -c 1
+#
+BUSCO_9
+BUSCO_10
