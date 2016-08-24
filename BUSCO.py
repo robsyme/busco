@@ -417,7 +417,7 @@ class Analysis(object):
     def _check_protein(self):
         """
         This function checks that the provided file is protein
-        :raises SystemExit: if only ACGT is found over a reasonable amount of lines
+        :raises SystemExit: if only ACGTN is found over a reasonable amount of lines
         """
         aas = set(Analysis.CODONS.values())
         aas.remove('A')
@@ -781,7 +781,7 @@ class Analysis(object):
         :param out: a file to which the header will be added
         :type out: file
         """
-        out.write('# BUSCO version is %s and the dataset is %s\n' % (VERSION, self._clade_path))
+        out.write('# BUSCO version is: %s \n# The lineage dataset is: %s\n' % (VERSION, self._clade_name))
         out.write('# To reproduce this run: %s\n#\n' % _rerun_cmd)
 
     def _blast(self, missing_and_frag_only=False, ancestral_variants=False):
@@ -1188,7 +1188,7 @@ class Analysis(object):
         # Extract fasta files from augustus output
         _logger.info('Extracting predicted proteins ...')
         self._no_predictions = []
-        for entry in self._missing_busco_list:
+        for entry in self._missing_busco_list + self._fragmented_busco_list:
             if entry in self._location_dic:
                 for location in self._location_dic[entry]:
                     output_index = self._location_dic[entry].index(location) + 1
@@ -1841,7 +1841,7 @@ class GenomeAnalysis(Analysis):
         """
         super(GenomeAnalysis, self).cleanup()
         Analysis.p_open(['rm %s*%s%s_.temp' % (self._tmp, self._abrev, self._random)], 'bash', shell=True)
-        Analysis.p_open(['rm %(tmp)s%(abrev)s.ns? %(tmp)s%(abrev)s.nin %(tmp)s%(abrev)s.nhr'
+        Analysis.p_open(['rm %(tmp)s%(abrev)s.*ns? %(tmp)s%(abrev)s.*nin %(tmp)s%(abrev)s.*nhr'
                         % {'tmp': self._tmp, 'abrev': self._abrev + str(self._random)}], 'bash', shell=True)
 
     def _run_tarzip(self):
@@ -2134,7 +2134,7 @@ class TranscriptomeAnalysis(Analysis):
         """
         super(TranscriptomeAnalysis, self).cleanup()
         Analysis.p_open(['rm %s*%s%s_.temp' % (self._tmp, self._abrev, self._random)], 'bash', shell=True)
-        Analysis.p_open(['rm %(tmp)s%(abrev)s.ns? %(tmp)s%(abrev)s.nin %(tmp)s%(abrev)s.nhr'
+        Analysis.p_open(['rm %(tmp)s%(abrev)s.*ns? %(tmp)s%(abrev)s.*nin %(tmp)s%(abrev)s.*nhr'
                         % {'tmp': self._tmp, 'abrev': self._abrev + str(self._random)}], 'bash', shell=True)
 
     def _run_tarzip(self):
@@ -2416,7 +2416,7 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = 'beta 2.0'
+VERSION = '2.0 beta 1'
 
 CONTACT = 'mailto:support@orthodb.org'
 
@@ -2469,7 +2469,8 @@ def _parse_args():
         'transcriptome assemblies (DNA)\n- prot or proteins, for annotated gene sets (protein)')
     required.add_argument(
         '-l', '--lineage', dest='clade', required=True, metavar='LINEAGE',
-        help='Specify which BUSCO lineage data to use.\nVisit http://busco.ezlab.org for available lineages.')
+        help='Specify location of the BUSCO lineage data to be used.\n'
+             'Visit http://busco.ezlab.org for available lineages.')
 
     optional.add_argument(
         '-f', '--force', action='store_true',  required=False, default=False, dest='force',
@@ -2601,7 +2602,7 @@ def _define_parameters(args):
     else:
         target_species = args['species']
 
-    _logger.info('The dataset is %s (%s)' % (clade_name, domain))
+    _logger.info('The lineage dataset is: %s (%s)' % (clade_name, domain))
 
     # Set up the number of cores to be used
     # Augustus uses the python 'threading' library to be run in parallel, blast and HMMer allow this by default

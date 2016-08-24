@@ -8,9 +8,9 @@ NOTE: This public repository is being set up. It provides the **beta version of 
 
 **BUSCO - Benchmarking sets of Universal Single-Copy Orthologs.**
 
-To get help, ``python3 BUSCO.py -h`` and ``python3 BUSCO_plot.py -h``.
+To get help, ``python BUSCO.py -h`` and ``python BUSCO_plot.py -h``.
 
-See also the user guide: http://busco.ezlab.org/files/BUSCO_userguide.pdf
+See also the user guide: BUSCO_userguide.pdf
 
 You can download BUSCO datasets on http://busco.ezlab.org
 
