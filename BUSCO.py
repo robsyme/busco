@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 """
 .. module:: BUSCO
    :synopsis: BUSCO - Benchmarking Universal Single-Copy Orthologs.
@@ -30,7 +31,6 @@ GNU General Public License for more details.
 
 import os
 import sys
-import re
 import subprocess
 import argparse
 from argparse import RawTextHelpFormatter
@@ -61,8 +61,8 @@ class BUSCOLogger(logging.getLoggerClass()):
         super(BUSCOLogger, self).__init__(name)
         self.setLevel(logging.INFO)
         self._has_warning = False
-        self._formatter = logging.Formatter('%(levelname)s:%(name)s\t%(message)s')
-        self._thread_formatter = logging.Formatter('%(levelname)s:%(name)s:%(threadName)s\t%(message)s')
+        self._formatter = logging.Formatter('%(levelname)s\t%(message)s')
+        self._thread_formatter = logging.Formatter('%(levelname)s:%(threadName)s\t%(message)s')
         self._formatter_blank_line = logging.Formatter('')
         self._out_hdlr = logging.StreamHandler(sys.stdout)
         self._out_hdlr.setFormatter(self._formatter)
@@ -257,12 +257,14 @@ class Analysis(object):
               'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G', 'GGN': 'G'}
 
     # Complementary nucleotides
-    COMP = {'A': 'T', 'T': 'A',
+    COMP = {'A': 'T', 'T': 'A', 'U': 'A',
             'C': 'G', 'G': 'C',
             'B': 'V', 'V': 'B',
             'D': 'H', 'H': 'D',
             'K': 'M', 'M': 'K',
-            'S': 'S', 'W': 'W', 'N': 'N'}
+            'S': 'S', 'W': 'W',
+            'R': 'Y', 'Y': 'R',
+            'X': 'X', 'N': 'N'}
 
     @staticmethod
     def cmd_exists(cmd):
@@ -291,6 +293,21 @@ class Analysis(object):
         process_out = process.stderr.readlines() + process.stdout.readlines()
         for line in process_out:
             _logger.info_external_tool(name, line.decode("utf-8").strip())
+
+    @staticmethod
+    def check_fasta_header(header):
+        """
+        This function checks problematic characters in fasta headers, and warns the user and stops the execution
+        :param header: a fasta header to check
+        :type header: str
+        :raises SystemExit: if a problematic character is found
+        """
+        for char in FORBIDDEN_HEADER_CHARS:
+            if char in header:
+                _logger.error('The character \'%s\' is present in the fasta header %s, '
+                              'which will crash BUSCO. '
+                              'Please clean the header of your input file.' % (char, header.strip()))
+                raise SystemExit
 
     @staticmethod
     def _check_blast():
@@ -332,6 +349,21 @@ class Analysis(object):
             else:
                 _logger.error('HMMer version detected is not supported, please use HMMer 3.1+')
                 raise SystemExit
+
+    @staticmethod
+    def _split_seq_id(seq_id):
+        """
+        This function split the provided seq id into id, start and stop
+        :param seq_id: the seq id to split
+        :type seq_id: str
+        :return: a dict containing the id, the start, the end found in seq_id
+        :rtype: dict
+        """
+        # -2,-1 instead of 0,1, if ':' in the fasta header, same for [,]
+        name = seq_id.replace(']', '').split('[')[-1].split(':')[-2]
+        start = seq_id.replace(']', '').split('[')[-1].split(':')[-1].split('-')[0]
+        end = seq_id.replace(']', '').split('[')[-1].split(':')[-1].split('-')[1]
+        return {'id': name, 'start': start, 'end': end}
 
     def check_dataset(self):
         """
@@ -409,7 +441,7 @@ class Analysis(object):
             if '>' not in line:
                 for aa in aas:
                     if aa in line:
-                        _logger.error('Please provide a nucleotide file as input')
+                        _logger.error('Please provide a nucleotide file as input, it should not contains \'%s\'' % aa)
                         file.close()
                         raise SystemExit
         file.close()
@@ -442,6 +474,35 @@ class Analysis(object):
             _logger.error('Please provide a protein file as input')
             raise SystemExit
 
+    def _define_checkpoint(self, nb=None):
+        """
+        This function update the checkpoint file with the provided id or delete it if none is provided
+        :param nb: the id of the checkpoint
+        :type nb: int
+        """
+        if nb:
+            open('%scheckpoint.tmp' % self.mainout, 'w').write('%s.%s.%s' % (nb, self._mode, self._random))
+        else:
+            if os.path.exists('%scheckpoint.tmp' % self.mainout):
+                os.remove('%scheckpoint.tmp' % self.mainout)
+
+    def _get_checkpoint(self, reset_random_suffix=False):
+        """
+        This function return the checkpoint if the checkpoint.tmp file exits or None if absent
+        :param reset_random_suffix: to tell whether to reset the self._random value with the one found the checkpoint
+        :type reset_random_suffix: bool
+        :return: the checkpoint name
+        :rtype: int
+        """
+        if os.path.exists('%scheckpoint.tmp' % self.mainout):
+            line = open('%scheckpoint.tmp' % self.mainout, 'r').readline()
+            if reset_random_suffix:
+                _logger.debug('Resetting random suffix to %s' % self._random)
+                self._random = line.split('.')[-1]
+            return int(int(line.split('.')[0]))
+        else:
+            return None
+
     def _extract_missing_and_frag_buscos_ancestral(self, ancestral_variants=False):
         """
         This function extracts from the file ancestral the sequences that match missing or fragmented buscos
@@ -449,11 +510,9 @@ class Analysis(object):
         :type ancestral_variants: bool
         """
         if self._has_variants_file:
-            _logger.info('Extracting missing and fragmented buscos from ancestral_variants file ...')
+            _logger.info('Extracting missing and fragmented buscos from the ancestral_variants file...')
         else:
-            _logger.info('Extracting missing and fragmented buscos from ancestral file ...')
-
-        regex_header = r'>'
+            _logger.info('Extracting missing and fragmented buscos from the ancestral file...')
 
         if ancestral_variants:
             ancestral = open('%sancestral_variants' % self._clade_path, 'r')
@@ -464,32 +523,34 @@ class Analysis(object):
 
         result = ''
 
-        for busco in self._missing_busco_list + self._fragmented_busco_list:
-            if ancestral_variants:
-                regex_busco = '^>%s(_[0-9]*)?$' % re.escape(busco)
+        buscos_to_retrieve = self._missing_busco_list + self._fragmented_busco_list
+        buscos_retrieved = []
+        add = False
+        for line in ancestral:
+            if line.startswith('>'):
+                if ancestral_variants:
+                    line = '_'.join(line.split("_")[:-1])
+                    # This pattern can support name like EOG00_1234_1
+                busco_id = line.strip().strip('>')
+                if busco_id in buscos_to_retrieve:
+                    _logger.debug('Found contig %s' % busco_id)
+                    add = True
+                    buscos_retrieved.append(busco_id)
+                else:
+                    add = False
+            if add:
+                if line.endswith('\n'):
+                    result += line
+                else:
+                    result += line + '\n'
+        if len(list(set(buscos_to_retrieve) - set(buscos_retrieved))) > 0:
+            if self._has_variants_file:
+                _logger.warning('The busco id(s) %s were not found in the ancestral_variants file' %
+                                list(set(buscos_to_retrieve) - set(buscos_retrieved)))
             else:
-                regex_busco = '^>%s$' % re.escape(busco)
-            _logger.debug('Try to include %s in ancestral_variants' % busco)
-            ancestral.seek(0, 0)
-            add = False
-            done = False
-            for line in ancestral:
-                if re.search(regex_header, line):
-                    if re.search(regex_busco, line.strip()):
-                        if ancestral_variants:
-                            line = '_'.join(line.split("_")[:-1])  # This pattern can support name like EOG00_1234_1
-                        _logger.debug('Found contig %s' % regex_busco)
-                        add = True
-                        done = True
-                    else:
-                        add = False
-                if add:
-                    if line.endswith('\n'):
-                        result += line
-                    else:
-                        result += line+'\n'
-            if not done:
-                _logger.warning('Warning %s not found in ancestral_variants' % regex_busco)
+                _logger.warning('The busco id(s) %s were not found in the ancestral file' %
+                                list(set(buscos_to_retrieve) - set(buscos_retrieved)))
+
         output.write(result)
         output.close()
         ancestral.close()
@@ -713,6 +774,7 @@ class Analysis(object):
         self._abrev = params['abrev']
         self._tmp = params['tmp']
         self._force = params['force']
+        self._restart = params['restart']
         self._sequences = params['sequences']
         self._cpus = params['cpus']
         self._clade_path = params['clade_path']
@@ -768,133 +830,17 @@ class Analysis(object):
         """
         pass
 
-    @abstractmethod
-    def _hmmer(self):
+    def _extract_scaffolds(self, missing_and_frag_only=False):
         """
-        This function runs hmmsearch. It has to be overriden by subclasses
-        """
-        pass
-
-    def _write_output_header(self, out):
-        """
-        This function adds a header to the provided file
-        :param out: a file to which the header will be added
-        :type out: file
-        """
-        out.write('# BUSCO version is: %s \n# The lineage dataset is: %s\n' % (VERSION, self._clade_name))
-        out.write('# To reproduce this run: %s\n#\n' % _rerun_cmd)
-
-    def _blast(self, missing_and_frag_only=False, ancestral_variants=False):
-        """
-        This function runs tblastn
-        :param missing_and_frag_only: to tell whether to blast only missing and fragmented buscos
+        This function extract the scaffold having blast results
+        :param missing_and_frag_only: to tell which coordinate file to look for, complete or just missing and fragment
         :type missing_and_frag_only: bool
-        :param ancestral_variants: to tell whether to use the ancestral_variants file
-        :type ancestral_variants: bool
         """
-        if ancestral_variants:
-            ancestral_suffix = '_variants'
-        else:
-            ancestral_suffix = ''
-
+        _logger.info('Pre-Augustus scaffold extraction...')
         if missing_and_frag_only:
-            self._extract_missing_and_frag_buscos_ancestral(ancestral_variants)
-            output_suffix = '_missing_and_frag_rerun'
-            query_file = '%sblast_output/missing_and_frag_ancestral%s' % (self.mainout, ancestral_suffix)
+            coord = open('%s/blast_output/coordinates_%s_missing_and_frag_rerun.tsv' % (self.mainout, self._abrev))
         else:
-            output_suffix = ''
-            query_file = '%sancestral%s' % (self._clade_path, ancestral_suffix)
-
-        if not missing_and_frag_only:
-            _logger.info('Create blast database ...')
-            Analysis.p_open(['makeblastdb', '-in', self._sequences, '-dbtype', 'nucl', '-out',
-                                            '%s%s%s' % (self._tmp, self._abrev, self._random)], 'makeblastdb',
-                            shell=False)
-            if not os.path.exists('%sblast_output' % self.mainout):
-                Analysis.p_open(['mkdir', '%sblast_output' % self.mainout], 'bash', shell=False)
-        _logger.info('Running tblastn, writing output to %sblast_output/tblastn_%s%s.tsv ...'
-                     % (self.mainout, self._abrev, output_suffix))
-
-        Analysis.p_open(['tblastn', '-evalue', str(self._ev_cutoff), '-num_threads', str(self._cpus),
-                         '-query', query_file,
-                         '-db', '%s%s%s' % (self._tmp, self._abrev, self._random),
-                         '-out', '%sblast_output/tblastn_%s%s.tsv'
-                         % (self.mainout, self._abrev, output_suffix), '-outfmt', '7'], 'tblastn',
-                        shell=False)
-        # check that blast worked
-        if not os.path.exists('%sblast_output/tblastn_%s%s.tsv' % (self.mainout, self._abrev, output_suffix)):
-            _logger.error('tblastn failed !')
-            raise SystemExit
-
-    def _run_threads(self, command_strings, thread_class, display_100percents=True):
-        """
-        This class creates and run threads of the provided type for each provided command
-        :param command_strings: the list of commands to be run in the threads
-        :type command_strings: list
-        :param thread_class: the type of thread class to create
-        :type thread_class: type Analysis.threads
-        :param display_100percents: to tell whether to display a log for 100% complete
-        :type display_100percents: bool
-        """
-        self.slate = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0]
-        self._exit_flag = 0
-        # Create X number of threads
-        self._thread_list = []
-        self._total = int(len(command_strings))
-        mark = 0
-        for i in range(int(self._cpus)):
-            mark += 1
-            self._thread_list.append("%s-%s-%s" % (thread_class.CLASS_ABREV, self._abrev, str(i + 1)))
-            if mark >= self._total:
-                break
-        self._queue_lock = threading.Lock()
-        self._work_queue = Queue.Queue(len(command_strings))
-        threads = []
-        thread_id = 1
-
-        # Generate the new threads
-        for t_name in self._thread_list:
-            thread = thread_class(thread_id, t_name, self)
-            thread.start()
-            threads.append(thread)
-            thread_id += 1
-
-        # Fill the queue with the commands
-        self._queue_lock.acquire()
-        for word in command_strings:
-            self._work_queue.put(word)
-        self._queue_lock.release()
-
-        # Wait for all jobs to finish (i.e. queue being empty)
-        while not self._work_queue.empty():
-            time.sleep(0.01)
-            pass
-        # Send exit signal
-        self._exit_flag = 1
-
-        # Wait for all threads to finish
-        for t in threads:
-            t.join()
-
-        if display_100percents:
-            _logger.info('%s =>\t100%% of predictions performed' % time.strftime("%m/%d/%Y %H:%M:%S"))
-
-    def _augustus(self):
-        """
-        This function runs Augustus
-        """
-        # Run Augustus on all candidate regions
-        # 1- Get the temporary sequence files (no multi-fasta support in Augustus)
-        # 2- Build a list with the running commands (for threading)
-        # 3- Launch Augustus in paralell using Threading
-        # 4- Prepare the sequence files to be analysed with HMMer 3.1
-
-        # Extract candidate contigs/scaffolds from genome assembly
-        # Augustus can't handle multi-fasta files, each sequence has to be present in its own file
-        # Write the temporary sequence files
-
-        _logger.info('Pre-Augustus scaffold extraction ...')
-        coord = open('%s/blast_output/coordinates_%s.tsv' % (self.mainout, self._abrev))
+            coord = open('%s/blast_output/coordinates_%s.tsv' % (self.mainout, self._abrev))
         dic = {}
         scaff_list = []
         for i in coord:
@@ -923,6 +869,160 @@ class Analysis(object):
         if out:
             out.close()
 
+    @abstractmethod
+    def _hmmer(self):
+        """
+        This function runs hmmsearch. It has to be overriden by subclasses
+        """
+        pass
+
+    def _write_output_header(self, out):
+        """
+        This function adds a header to the provided file
+        :param out: a file to which the header will be added
+        :type out: file
+        """
+        out.write('# BUSCO version is: %s \n# The lineage dataset is: %s\n' % (VERSION, self._clade_name))
+        out.write('# To reproduce this run: %s\n#\n' % _rerun_cmd)
+
+    @staticmethod
+    def _write_full_table_header(out):
+        """
+        This function adds a header line to the full table file
+        :param out: a full table file
+        :type out: file
+        """
+        out.write('# Busco id\tStatus\tSequence\tScore\tLength\n')
+
+    def _blast(self, missing_and_frag_only=False, ancestral_variants=False):
+        """
+        This function runs tblastn
+        :param missing_and_frag_only: to tell whether to blast only missing and fragmented buscos
+        :type missing_and_frag_only: bool
+        :param ancestral_variants: to tell whether to use the ancestral_variants file
+        :type ancestral_variants: bool
+        """
+        if ancestral_variants:
+            ancestral_suffix = '_variants'
+        else:
+            ancestral_suffix = ''
+
+        if missing_and_frag_only:
+            self._extract_missing_and_frag_buscos_ancestral(ancestral_variants)
+            output_suffix = '_missing_and_frag_rerun'
+            query_file = '%sblast_output/missing_and_frag_ancestral%s' % (self.mainout, ancestral_suffix)
+        else:
+            output_suffix = ''
+            query_file = '%sancestral%s' % (self._clade_path, ancestral_suffix)
+
+        if not missing_and_frag_only:
+            _logger.info('Create blast database...')
+            Analysis.p_open(['makeblastdb', '-in', self._sequences, '-dbtype', 'nucl', '-out',
+                                            '%s%s%s' % (self._tmp, self._abrev, self._random)], 'makeblastdb',
+                            shell=False)
+            if not os.path.exists('%sblast_output' % self.mainout):
+                Analysis.p_open(['mkdir', '%sblast_output' % self.mainout], 'bash', shell=False)
+        _logger.info('Running tblastn, writing output to %sblast_output/tblastn_%s%s.tsv...'
+                     % (self.mainout, self._abrev, output_suffix))
+
+        Analysis.p_open(['tblastn', '-evalue', str(self._ev_cutoff), '-num_threads', str(self._cpus),
+                         '-query', query_file,
+                         '-db', '%s%s%s' % (self._tmp, self._abrev, self._random),
+                         '-out', '%sblast_output/tblastn_%s%s.tsv'
+                         % (self.mainout, self._abrev, output_suffix), '-outfmt', '7'], 'tblastn',
+                        shell=False)
+        # check that blast worked
+        if not os.path.exists('%sblast_output/tblastn_%s%s.tsv' % (self.mainout, self._abrev, output_suffix)):
+            _logger.error('tblastn failed !')
+            raise SystemExit
+        # check that the file is not truncated
+        try:
+            if "processed" not in open('%sblast_output/tblastn_%s%s.tsv' % (self.mainout, self._abrev, output_suffix),
+                                       'r').readlines()[-1]:
+                _logger.warning('tblastn might have ended prematurely (the result file lacks the expected final line), '
+                                'which could produce incomplete results in the next steps !')
+        except IndexError:
+                pass  # if the tblastn result file is empty, for example in phase 2 if 100% was found in phase 1
+
+    def _run_threads(self, command_strings, thread_class, display_percents=True):
+        """
+        This class creates and run threads of the provided type for each provided command
+        :param command_strings: the list of commands to be run in the threads
+        :type command_strings: list
+        :param thread_class: the type of thread class to create
+        :type thread_class: type Analysis.threads
+        :param display_percents: to tell whether to display a log for 0% and 100% complete
+        :type display_percents: bool
+        """
+        self.slate = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10]
+        if len(command_strings) < 11:
+            self.slate = [100, 50]  # to avoid false progress display if not enough entries
+        self._exit_flag = 0
+        # Create X number of threads
+        self._thread_list = []
+        self._total = len(command_strings)
+        mark = 0
+        for i in range(int(self._cpus)):
+            mark += 1
+            self._thread_list.append("%s-%s-%s" % (thread_class.CLASS_ABREV, self._abrev, str(i + 1)))
+            if mark >= self._total:
+                break
+        self._queue_lock = threading.Lock()
+        self._work_queue = Queue.Queue(len(command_strings))
+        threads = []
+        thread_id = 1
+
+        # Generate the new threads
+        for t_name in self._thread_list:
+            thread = thread_class(thread_id, t_name, self)
+            thread.start()
+            threads.append(thread)
+            thread_id += 1
+
+        if display_percents:
+            _logger.info('%s =>\t0%% of predictions performed (%i to be done)'
+                         % (time.strftime("%m/%d/%Y %H:%M:%S"), self._total))
+
+        # Fill the queue with the commands
+        self._queue_lock.acquire()
+        for word in command_strings:
+            self._work_queue.put(word)
+        self._queue_lock.release()
+
+        # Wait for all jobs to finish (i.e. queue being empty)
+        while not self._work_queue.empty():
+            time.sleep(0.01)
+            pass
+        # Send exit signal
+        self._exit_flag = 1
+
+        # Wait for all threads to finish
+        for t in threads:
+            t.join()
+
+        if display_percents:
+            _logger.info('%s =>\t100%% of predictions performed' % time.strftime("%m/%d/%Y %H:%M:%S"))
+
+    def _augustus(self):
+        """
+        This function runs Augustus
+        """
+        # Run Augustus on all candidate regions
+        # 1- Get the temporary sequence files (no multi-fasta support in Augustus)
+        # 2- Build a list with the running commands (for threading)
+        # 3- Launch Augustus in paralell using Threading
+        # 4- Prepare the sequence files to be analysed with HMMer 3.1
+
+        # Extract candidate contigs/scaffolds from genome assembly
+        # Augustus can't handle multi-fasta files, each sequence has to be present in its own file
+        # Write the temporary sequence files
+
+        # First, delete the augustus result folder, in case we are in the restart mode at this point
+        Analysis.p_open(['rm -rf %saugustus_output/*' % self.mainout], 'bash', shell=True)
+
+        # get all scaffolds with blast results
+        self._extract_scaffolds()
+
         # Now run Augustus on each candidate region with its respective Block-profile
 
         _logger.info('Running Augustus prediction using %s as species:' % self._target_species)
@@ -931,7 +1031,7 @@ class Analysis(object):
         if not os.path.exists('%saugustus_output/predicted_genes' % self.mainout):
             Analysis.p_open(['mkdir', '-p', '%saugustus_output/predicted_genes' % self.mainout], 'bash', shell=False)
 
-            # coordinates of hits by BUSCO
+        # coordinates of hits by BUSCO
         self._location_dic = {}
         f = open('%s/blast_output/coordinates_%s.tsv' % (self.mainout, self._abrev))
         for line in f:
@@ -959,7 +1059,7 @@ class Analysis(object):
 
                 out_name = '%saugustus_output/predicted_genes/%s.out.%s' % (self.mainout, entry, output_index)
 
-                augustus_call = 'augustus --proteinprofile=%(clade)sprfl/%(busco_group)s.prfl ' \
+                augustus_call = 'augustus --codingseq=1 --proteinprofile=%(clade)sprfl/%(busco_group)s.prfl ' \
                                 '--predictionStart=%(start_coord)s --predictionEnd=%(end_coord)s ' \
                                 '--species=%(species)s \'%(tmp)s%(scaffold)s\' > %(output)s 2>> %(augustus_log)s' % \
                                 {'clade': self._clade_path, 'species': self._target_species, 'busco_group': entry,
@@ -973,9 +1073,8 @@ class Analysis(object):
 
         # Parse Augustus output files ('run_XXXX/augustus') and extract protein sequences
         # to a FASTA file ('run_XXXX/augustus_output/extracted_proteins').
-        _logger.info('Extracting predicted proteins ...')
+        _logger.info('Extracting predicted proteins...')
         files = os.listdir('%saugustus_output/predicted_genes' % self.mainout)
-        check = 0
         for entry in files:
             Analysis.p_open(['sed -i.bak \'1,3d\' %saugustus_output/predicted_genes/%s;'
                              'rm %saugustus_output/predicted_genes/%s.bak'
@@ -983,44 +1082,10 @@ class Analysis(object):
         if not os.path.exists(self.mainout + 'augustus_output/extracted_proteins'):
             Analysis.p_open(['mkdir', '%saugustus_output/extracted_proteins' % self.mainout], 'bash', shell=False)
 
+        self._no_predictions = []
         for entry in files:
-            f = open('%saugustus_output/predicted_genes/%s' % (self.mainout, entry))
-
-            group_name = entry.split('.')[0]
-            group_index = entry[-1]
-            out = open('%saugustus_output/extracted_proteins/%s.fas.%s' % (self.mainout, group_name, group_index), 'w')
-
-            count = 0
-            tr = 0
-            for line in f:
-                if line.startswith('# start gene'):
-                    tr = 1
-                elif tr == 1:
-                    line = line.split()
-                    places = [line[0], line[3], line[4]]
-                    tr = 0
-                elif line.startswith('# protein'):
-                    line = line.strip().split('[')
-                    count += 1
-                    out.write('>g%s[%s:%s-%s]\n' % (count, places[0], places[1], places[2]))
-                    if line[1][-1] == ']':
-                        line[1] = line[1][:-1]
-                    out.write(line[1])
-                    check = 1
-                else:
-                    if line.startswith('# sequence of block'):
-                        check = 0
-                    elif line.startswith('# end'):
-                        check = 0
-                        out.write('\n')
-                    elif check == 1:
-                        line = line.split()[1]
-                        if line[-1] == ']':
-                            line = line[:-1]
-                        out.write(line)
-        f.close()
-        if out:
-            out.close()
+            self._extract(self.mainout, entry)
+            self._extract(self.mainout, entry, aa=False)
 
         Analysis.p_open(['find %saugustus_output/extracted_proteins -size 0 -delete' % self.mainout], 'bash',
                         shell=True)
@@ -1039,7 +1104,7 @@ class Analysis(object):
             Analysis.p_open(['mkdir', '%saugustus_output/gb' % self.mainout], 'bash', shell=False)
 
         _logger.info('Training Augustus using Single-Copy Complete BUSCOs:')
-        _logger.info('%s =>\tConverting predicted genes to to short genbank files ...'
+        _logger.info('%s =>\tConverting predicted genes to short genbank files...'
                      % time.strftime("%m/%d/%Y %H:%M:%S"))
 
         gff2gbsmalldna_strings = []
@@ -1071,8 +1136,8 @@ class Analysis(object):
 
             gff2gbsmalldna_strings.append(gff2gbsmalldna_call)  # list of call strings
 
-        self._run_threads(gff2gbsmalldna_strings, self._Gff2gbSmallDNAThreads, False)
-        _logger.info('%s =>\tAll files converted to short genbank files, now running the training scripts ...'
+        self._run_threads(gff2gbsmalldna_strings, self._Gff2gbSmallDNAThreads, display_percents=False)
+        _logger.info('%s =>\tAll files converted to short genbank files, now running the training scripts...'
                      % time.strftime("%m/%d/%Y %H:%M:%S"))
 
         # bacteria clade needs to be flagged as "prokaryotic"
@@ -1096,7 +1161,7 @@ class Analysis(object):
                         shell=True)
         # long mode (--long) option - runs all the Augustus optimization scripts (adds ~1 day of runtime)
         if self._long:
-            _logger.warning('%s => Optimizing augustus metaparameters, this may take a very long time ...'
+            _logger.warning('%s => Optimizing augustus metaparameters, this may take a very long time...'
                             % time.strftime("%m/%d/%Y %H:%M:%S"))
             Analysis.p_open(['optimize_augustus.pl --cpus=%s --species=BUSCO_%s%s %saugustus_output/training_set_%s.txt \
                 1>>%s 2>&1' %
@@ -1108,6 +1173,9 @@ class Analysis(object):
                             shell=True)
 
         #######################################################
+
+        # get all scaffolds with blast results
+        self._extract_scaffolds(missing_and_frag_only=True)
 
         _logger.info('Re-running Augustus with the new metaparameters, '
                      'number of target BUSCOs: %s' % len(self._missing_busco_list + self._fragmented_busco_list))
@@ -1153,7 +1221,7 @@ class Analysis(object):
 
                     out_name = '%saugustus_output/predicted_genes/%s.out.%s' % (self.mainout, entry, output_index)
 
-                    augustus_call = 'augustus --proteinprofile=%(clade)sprfl/%(busco_group)s.prfl \
+                    augustus_call = 'augustus --codingseq=1 --proteinprofile=%(clade)sprfl/%(busco_group)s.prfl \
                         --predictionStart=%(start_coord)s --predictionEnd=%(end_coord)s --species=BUSCO_%(species)s \
                         \'%(tmp)s%(scaffold)s\' > %(output)s 2>> %(augustus_log)s' % \
                                     {'clade': self._clade_path, 'species': self._abrev + str(self._random),
@@ -1166,7 +1234,7 @@ class Analysis(object):
                     augustus_rerun_seds.append(sed_call)
 
                     out_name = '%shmmer_output/%s.out.%s' % (self.mainout, entry, output_index)
-                    augustus_fasta = '%saugustus_output/extracted_proteins/%s.fas.%s'\
+                    augustus_fasta = '%saugustus_output/extracted_proteins/%s.faa.%s'\
                                      % (self.mainout, entry, output_index)
 
                     hmmer_call = ['hmmsearch',
@@ -1186,7 +1254,7 @@ class Analysis(object):
         for sed_string in augustus_rerun_seds:
             Analysis.p_open(['%s' % sed_string], 'bash', shell=True)
         # Extract fasta files from augustus output
-        _logger.info('Extracting predicted proteins ...')
+        _logger.info('Extracting predicted proteins...')
         self._no_predictions = []
         for entry in self._missing_busco_list + self._fragmented_busco_list:
             if entry in self._location_dic:
@@ -1195,6 +1263,7 @@ class Analysis(object):
                     # when extract gets reworked to not need MAINOUT, change to OUT_NAME
                     plain_name = '%s.out.%s' % (entry, output_index)
                     self._extract(self.mainout, plain_name)
+                    self._extract(self.mainout, plain_name, aa=False)
             else:
                 pass
 
@@ -1207,7 +1276,7 @@ class Analysis(object):
             if target_seq not in self._no_predictions:
                 hmmer_rerun_strings_filtered.append(word)
 
-        _logger.info('****** Step 3/3 ******')
+        _logger.info('****** Step 3/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
         _logger.info('Running HMMER to confirm orthology of predicted proteins:')
 
         self._run_threads(hmmer_rerun_strings_filtered, self._HmmerThreads)
@@ -1240,14 +1309,17 @@ class Analysis(object):
         for entry in self._single_copy_files:
             check = 0
 
-            file_name = self._single_copy_files[entry].split('-')[-1].replace('out', 'fas')
+            file_name = self._single_copy_files[entry].split('-')[-1].replace('out', 'faa')
+            file_name_nucl = self._single_copy_files[entry].split('-')[-1].replace('out', 'fna')
             target_seq_name = self._single_copy_files[entry].split('[')[0]
             group_name = file_name.split('.')[0]
             seq_coord_start = self._single_copy_files[entry].split(']-')[0].split('[')[1]
 
-            # create GFFs with only the "single-copy" BUSCO sequences
             pred_fasta_file = open('%saugustus_output/extracted_proteins/%s' % (self.mainout, file_name))
-            single_copy_outfile = open('%ssingle_copy_busco_sequences/%s.fas' % (self.mainout, group_name), 'w')
+            single_copy_outfile = open('%ssingle_copy_busco_sequences/%s.faa' % (self.mainout, group_name), 'w')
+
+            pred_fasta_file_nucl = open('%saugustus_output/extracted_proteins/%s' % (self.mainout, file_name_nucl))
+            single_copy_outfile_nucl = open('%ssingle_copy_busco_sequences/%s.fna' % (self.mainout, group_name), 'w')
 
             for line in pred_fasta_file:
                 if line.startswith('>%s' % target_seq_name):
@@ -1257,21 +1329,41 @@ class Analysis(object):
                     check = 0
                 elif check == 1:
                     single_copy_outfile.write(line)
+
+            for line in pred_fasta_file_nucl:
+                if line.startswith('>%s' % target_seq_name):
+                    single_copy_outfile_nucl.write('>%s:%s:%s\n' % (group_name, self._sequences, seq_coord_start))
+                    check = 1
+                elif line.startswith('>'):
+                    check = 0
+                elif check == 1:
+                    single_copy_outfile_nucl.write(line)
+
             pred_fasta_file.close()
             single_copy_outfile.close()
+            pred_fasta_file_nucl.close()
+            single_copy_outfile_nucl.close()
 
-    def _extract(self, path, group):
+    def _extract(self, path, group, aa=True):
         """
         This function extracts fasta files from augustus output
         :param path: the path to the BUSCO run folder
         :type path: str
         :param group: the BUSCO group id
         :type group: str
+        :param aa: to tell whether to extract amino acid instead of nucleotide sequence
+        :type aa: bool
         """
-        # todo, still duplicated code doing this
+        ext = 'fna'
+        start_str = '# coding sequence'
+        end_str = '# protein'
+        if aa:
+            ext = 'faa'
+            start_str = '# protein'
+            end_str = '# end'
+
         count = 0
         group_name = group.split('.')[0]
-
         try:
             group_index = int(group[-1])
         except IndexError:
@@ -1290,13 +1382,14 @@ class Analysis(object):
                 line = f.readline()
                 line = line.split()
                 places = [line[0], line[3], line[4]]
-            elif line.startswith('# protein'):
+            elif line.startswith(start_str):
                 line = line.strip().split('[')
                 count += 1
                 if written_check == 0:
-                    out = open('%saugustus_output/extracted_proteins/%s.fas.%s' % (path, group_name, group_index), 'w')
+                    out = open('%saugustus_output/extracted_proteins/%s.%s.%s'
+                               % (path, group_name, ext, group_index), 'w')
                     written_check = 1
-                out.write('>p%s[%s:%s-%s]\n' % (count, places[0], places[1], places[2]))
+                out.write('>g%s[%s:%s-%s]\n' % (count, places[0], places[1], places[2]))
                 if line[1][-1] == ']':
                     line[1] = line[1][:-1]
                 out.write(line[1])
@@ -1304,7 +1397,7 @@ class Analysis(object):
             else:
                 if line.startswith('# sequence of block'):
                     check = 0
-                elif line.startswith('# end'):
+                elif line.startswith(end_str):
                     check = 0
                     out.write('\n')
                 elif check == 1:
@@ -1316,7 +1409,7 @@ class Analysis(object):
         if written_check == 1:
             out.close()
         else:
-            self._no_predictions.append('%s.fas.%s' % (group_name, group_index))
+            self._no_predictions.append('%s.faa.%s' % (group_name, group_index))
 
     def _parse_hmmer(self, hmmer_results_files):
         """
@@ -1324,7 +1417,7 @@ class Analysis(object):
         :param hmmer_results_files: the list of all output files
         :type hmmer_results_files: list
         """
-        # todo: replace self._mode == ... by a proper parent-child behavior that overrides code when needed
+        # todo: replace self._mode ==... by a proper parent-child behavior that overrides code when needed
 
         env = []
         everything = {}  # all info from hit_dic + lengths
@@ -1465,6 +1558,7 @@ class Analysis(object):
 
         out = open('%sfull_table_%s.tsv' % (self.mainout, self._abrev), 'w')
         self._write_output_header(out)
+        self._write_full_table_header(out)
 
         not_missing = []
         fragmented = []
@@ -1481,13 +1575,10 @@ class Analysis(object):
                 if self._mode == 'proteins' or self._mode == 'tran':
                     out.write('%s\tComplete\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
                 elif self._mode == 'genome':
-                    scaff = seq_id.replace(']', '').split('[')[1].split(':')[0]
-                    scaff_start = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[0]
-                    scaff_end = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[1]
-
+                    scaff = self._split_seq_id(seq_id)
                     out.write(
                         '%s\tComplete\t%s\t%s\t%s\t%s\t%s\n' %
-                        (entity, scaff, scaff_start, scaff_end, bit_score, seq_len))
+                        (entity, scaff['id'], scaff['start'], scaff['end'], bit_score, seq_len))
                     csc[entity] = seq_id
 
         for entity in the_mc:
@@ -1500,12 +1591,10 @@ class Analysis(object):
                 if self._mode == 'proteins' or self._mode == 'tran':
                     out.write('%s\tDuplicated\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
                 elif self._mode == 'genome':
-                    scaff = seq_id.replace(']', '').split('[')[1].split(':')[0]
-                    scaff_start = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[0]
-                    scaff_end = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[1]
+                    scaff = self._split_seq_id(seq_id)
                     out.write(
-                        '%s\tDuplicated\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff, scaff_start, scaff_end, bit_score,
-                                                                  seq_len))
+                        '%s\tDuplicated\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff['id'], scaff['start'], scaff['end'],
+                                                                  bit_score, seq_len))
 
         for entity in the_fg:
             for seq_id in the_fg[entity]:
@@ -1518,12 +1607,10 @@ class Analysis(object):
                 if self._mode == 'proteins' or self._mode == 'tran':
                     out.write('%s\tFragmented\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
                 elif self._mode == 'genome':
-                    scaff = seq_id.replace(']', '').split('[')[1].split(':')[0]
-                    scaff_start = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[0]
-                    scaff_end = seq_id.replace(']', '').split('[')[1].split(':')[1].split('-')[1]
+                    scaff = self._split_seq_id(seq_id)
                     out.write(
-                        '%s\tFragmented\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff, scaff_start, scaff_end, bit_score,
-                                                                  seq_len))
+                        '%s\tFragmented\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff['id'], scaff['start'], scaff['end'],
+                                                                  bit_score, seq_len))
 
         missing = []
         miss_file = open('%smissing_busco_list_%s.tsv' % (self.mainout, self._abrev), 'w')
@@ -1599,14 +1686,27 @@ class Analysis(object):
         """
         # create the run directory
         self.mainout = ROOT_FOLDER+'/run_%s/' % self._abrev  # final output directory
+        # complain about the -r option if there is no checkpoint.tmp file
+        if not self._get_checkpoint() and self._restart:
+            _logger.warning('This is not an uncompleted run that can be restarted')
+            self._restart = False
+
         if os.path.exists(self.mainout) == False and self._abrev:
             Analysis.p_open(['mkdir', self.mainout], 'bash', shell=False)
         else:
-            if not self._force:
-                _logger.error('A run with that name already exists!'
-                              '\n\t\t\tIf you are sure you wish to overwrite existing files, please use the -f option')
+            if not self._force and not self._restart:
+                restart_msg1 = ''
+                restart_msg2 = ''
+                if self._get_checkpoint():
+                    restart_msg1 = ' and seems uncompleted'
+                    restart_msg2 = ', or use the -r option to continue an uncompleted run'
+                _logger.error('A run with that name already exists%s...'
+                              '\n\tIf you are sure you wish to overwrite existing files, please use the -f option%s'
+                              % (restart_msg1, restart_msg2))
+
                 raise SystemExit
-            else:
+            elif not self._restart:
+                _logger.info('Delete the current result folder and start a new run')
                 Analysis.p_open(['rm -rf %s*' % self.mainout], 'bash', shell=True)
 
         # create the tmp directory
@@ -1789,6 +1889,29 @@ class GenomeAnalysis(Analysis):
         super(GenomeAnalysis, self).__init__(params)
         self._mode = 'genome'
 
+    def _fix_restart_augustus_folder(self):
+        """
+        This function resets and checks the augustus folder to make a restart possible in phase 2
+        :raises SystemExit: if it is not possible to fix the folders
+        """
+        if os.path.exists('%saugustus_output/predicted_genes_run1' % self.mainout) and \
+                os.path.exists('%shmmer_output_run1' % self.mainout):
+            Analysis.p_open(['rm', '-fr', '%saugustus_output/predicted_genes' % self.mainout], 'bash', shell=False)
+            Analysis.p_open(['mv', '%saugustus_output/predicted_genes_run1'
+                             % self.mainout, '%saugustus_output/predicted_genes'
+                             % self.mainout], 'bash', shell=False)
+            Analysis.p_open(['rm', '-fr', '%shmmer_output' % self.mainout], 'bash', shell=False)
+            Analysis.p_open(['mv', '%shmmer_output_run1/' % self.mainout, '%shmmer_output/' % self.mainout], 'bash',
+                            shell=False)
+
+        elif os.path.exists('%saugustus_output/predicted_genes' % self.mainout) and \
+                os.path.exists('%shmmer_output' % self.mainout):
+            pass
+        else:
+            _logger.error('Impossible to restart the run, necessary folders are missing. '
+                          'Use the -f option instead of -r')
+            raise SystemExit
+
     def run_analysis(self):
         """
         This function calls all needed steps for running the analysis.
@@ -1797,38 +1920,69 @@ class GenomeAnalysis(Analysis):
         self._check_nucleotide()
         self._create_directory()
         _logger.add_blank_line()
+        if self._restart:
+            checkpoint = self._get_checkpoint(reset_random_suffix=True)
+            _logger.warning('Restarting an uncompleted run')
+        else:
+            checkpoint = 0  # all steps will be done
+
         _logger.info('****** Phase 1 of 2, initial predictions ******')
-        _logger.info('****** Step 1/3 ******')
-        self._blast()
-        self._get_coordinates()
-        _logger.info('****** Step 2/3 ******')
-        self._augustus()
-        _logger.info('****** Step 3/3 ******')
-        self._hmmer()
+        if checkpoint < 1:
+            _logger.info('****** Step 1/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
+            self._blast()
+            self._define_checkpoint(1)
+
+        if checkpoint < 2:
+            _logger.info('****** Step 2/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
+            self._get_coordinates()
+            self._augustus()
+            _logger.info('****** Step 3/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
+            self._hmmer()
+            self._define_checkpoint(2)
         self._load_score()
         self._load_length()
+        if checkpoint == 2 or checkpoint == 3:
+            _logger.info('Phase 1 was already completed.')
+        if checkpoint == 3:
+            self._fix_restart_augustus_folder()
         self._produce_short_summary()
         _logger.add_blank_line()
         _logger.info('****** Phase 2 of 2, predictions using species specific training ******')
-        _logger.info('****** Step 1/3 ******')
-        if self._has_variants_file:
-            self._blast(missing_and_frag_only=True, ancestral_variants=True)
-            self._get_coordinates(missing_and_frag_only=True)
-        else:
-            self._blast(missing_and_frag_only=True, ancestral_variants=False)
-            self._get_coordinates(missing_and_frag_only=True)
-        _logger.info('****** Step 2/3 ******')
+        if checkpoint < 3:
+            _logger.info('****** Step 1/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
+            if self._has_variants_file:
+                self._blast(missing_and_frag_only=True, ancestral_variants=True)
+                self._get_coordinates(missing_and_frag_only=True)
+            else:
+                self._blast(missing_and_frag_only=True, ancestral_variants=False)
+                self._get_coordinates(missing_and_frag_only=True)
+            self._define_checkpoint(3)
+        _logger.info('****** Step 2/3, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
         self._augustus_rerun()
         self._move_retraining_parameters()
         self.cleanup()
+        self._define_checkpoint()  # remove the checkpoint, run is done
+
+    @staticmethod
+    def _write_full_table_header(out):
+        """
+        This function adds a header line to the full table file
+        :param out: a full table file
+        :type out: file
+        """
+        out.write('# Busco id\tStatus\tContig\tStart\tEnd\tScore\tLength\n')
 
     def _move_retraining_parameters(self):
         """
         This function moves retraining parameters from augustus species folder to the run folder
         """
         if os.path.exists(self._augustus_config_path + ('/species/BUSCO_%s%s' % (self._abrev, self._random))):
-            Analysis.p_open(['mv', '%sspecies/BUSCO_%s%s' % (self._augustus_config_path, self._abrev, self._random),
+            Analysis.p_open(['cp', '-r', '%sspecies/BUSCO_%s%s'
+                             % (self._augustus_config_path, self._abrev, self._random),
                              '%saugustus_output/retraining_parameters' % self.mainout], 'bash', shell=False)
+            Analysis.p_open(['rm', '-rf', '%sspecies/BUSCO_%s%s'
+                             % (self._augustus_config_path, self._abrev, self._random)],
+                            'bash', shell=False)
         else:
             _logger.add_blank_line()
             _logger.warning('Augustus did not produce a retrained species folder, please check the augustus log file '
@@ -1887,7 +2041,7 @@ class GenomeAnalysis(Analysis):
         else:
             blast_file = open('%sblast_output/tblastn_%s.tsv' % (self.mainout, self._abrev))
 
-        _logger.info('Getting coordinates for candidate regions ...')
+        _logger.info('Getting coordinates for candidate regions...')
 
         dic = {}
         coords = {}
@@ -2057,18 +2211,19 @@ class GenomeAnalysis(Analysis):
         hmmer_run_strings = []
 
         for entry in files:
-            count += 1
-            group_name = entry.split('.')[0]
-            group_index = entry[-1]
+            if entry.split('.')[-2] == 'faa':
+                count += 1
+                group_name = entry.split('.')[0]
+                group_index = entry[-1]
 
-            hmmer_call = ['hmmsearch',
-                          '--domtblout', '%shmmer_output/%s.out.%s' % (self.mainout, group_name, group_index),
-                          '-o', '%stemp_%s%s' % (self._tmp, self._abrev, self._random),
-                          '--cpu', '1',
-                          '%shmms/%s.hmm' % (self._clade_path, group_name),
-                          '%saugustus_output/extracted_proteins/%s' % (self.mainout, entry)]
+                hmmer_call = ['hmmsearch',
+                              '--domtblout', '%shmmer_output/%s.out.%s' % (self.mainout, group_name, group_index),
+                              '-o', '%stemp_%s%s' % (self._tmp, self._abrev, self._random),
+                              '--cpu', '1',
+                              '%shmms/%s.hmm' % (self._clade_path, group_name),
+                              '%saugustus_output/extracted_proteins/%s' % (self.mainout, entry)]
 
-            hmmer_run_strings.append(hmmer_call)
+                hmmer_run_strings.append(hmmer_call)
 
         self._run_threads(hmmer_run_strings, self._HmmerThreads)
 
@@ -2115,18 +2270,26 @@ class TranscriptomeAnalysis(Analysis):
         self.check_dataset()
         self._check_nucleotide()
         self._create_directory()
-        _logger.info('****** Step 1/2 ******')
-        if self._has_variants_file:
-            self._blast(ancestral_variants=True)
+        if self._restart:
+            checkpoint = self._get_checkpoint(reset_random_suffix=True)
+            _logger.warning('Restarting an uncompleted run')
         else:
-            self._blast(ancestral_variants=False)
+            checkpoint = 0  # all steps will be done
+        if checkpoint < 1:
+            _logger.info('****** Step 1/2, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
+            if self._has_variants_file:
+                self._blast(ancestral_variants=True)
+            else:
+                self._blast(ancestral_variants=False)
+            self._define_checkpoint(1)
+        _logger.info('****** Step 2/2, current time: %s ******' % time.strftime("%m/%d/%Y %H:%M:%S"))
         self._load_score()
         self._load_length()
         self._get_coordinates()
-        _logger.info('****** Step 2/2 ******')
         self._hmmer()
         self._produce_short_summary()
         self.cleanup()
+        self._define_checkpoint()  # remove the checkpoint, run is done
 
     def cleanup(self):
         """
@@ -2152,7 +2315,7 @@ class TranscriptomeAnalysis(Analysis):
         """
         This function gets coordinates for candidate regions from tblastn result file
         """
-        _logger.info('Getting coordinates for candidate transcripts ...')
+        _logger.info('Getting coordinates for candidate transcripts...')
         f = open('%sblast_output/tblastn_%s.tsv' % (self.mainout, self._abrev))  # open input file
         transcriptome_by_busco = {}
         self._transcriptome_by_scaff = {}
@@ -2241,7 +2404,7 @@ class TranscriptomeAnalysis(Analysis):
                             if leng > maxi:
                                 maxi = leng
 
-        _logger.info('Extracting candidate transcripts ...')
+        _logger.info('Extracting candidate transcripts...')
         f = open(self._sequences)
         check = 0
         out = None
@@ -2268,10 +2431,13 @@ class TranscriptomeAnalysis(Analysis):
             if entry.endswith(self._abrev + str(self._random) + '_.temp'):
                 lista.append(entry)
 
-        _logger.info('Translating candidate transcripts ...')
+        _logger.info('Translating candidate transcripts...')
         for entry in lista:
             raw_seq = open(self._tmp + entry)
-            trans_seq = open(self.mainout + 'translated_proteins/' + entry.split(self._abrev)[0] + '.fas', 'w')
+            name = entry.split(self._abrev)[0]
+            if name == '':  # if the contig name is _abrev, might happen :)
+                name = self._abrev
+            trans_seq = open(self.mainout + 'translated_proteins/' + name + '.faa', 'w')
             nucl_seq = ''
             header = ''
             for line in raw_seq:
@@ -2314,15 +2480,10 @@ class TranscriptomeAnalysis(Analysis):
         busco_index = {}
 
         for f in files:
-            if f.endswith('.fas'):
+            if f.endswith('.faa'):
                 count += 1
                 scaff = f[:-4]
-                try:
-                    scaff_buscos = self._transcriptome_by_scaff[scaff]
-                except KeyError:  # this happens if a transcript is named like the run abrev.
-                                    # The corresponding fas file is ".fas". todo debug this where this file is created
-                    scaff_buscos = self._transcriptome_by_scaff[self._abrev]
-
+                scaff_buscos = self._transcriptome_by_scaff[scaff]
                 for busco in scaff_buscos:
 
                     try:
@@ -2362,6 +2523,9 @@ class GeneSetAnalysis(Analysis):
         :type params: dict
         """
         super(GeneSetAnalysis, self).__init__(params)
+        if self._restart:
+            _logger.error('There is no restart allowed for the protein mode')
+            raise SystemExit
         self._mode = 'proteins'
 
     def run_analysis(self):
@@ -2416,11 +2580,15 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = '2.0 beta 1'
+VERSION = '2.0 beta 2'
 
 CONTACT = 'mailto:support@orthodb.org'
 
 ROOT_FOLDER = os.getcwd()
+
+FORBIDDEN_HEADER_CHARS = ['/', 'ç', '¬', '¢', '\'', '´', 'ê', 'î', 'ô', 'ŵ', 'ẑ', 'û', 'â', 'ŝ', 'ĝ', 'ĥ', 'ĵ', 'ŷ',
+                          'ĉ', 'é', 'ï', 'ẅ', 'ë', 'ẅ', 'ë', 'ẗ,', 'ü', 'í', 'ö', 'ḧ', 'é', 'ÿ', 'ẍ', 'è', 'é',
+                          'à', 'ä', '¨', '€', '£', 'á']
 
 #: Get an instance of _logger for keeping track of events
 logging.setLoggerClass(BUSCOLogger)
@@ -2475,6 +2643,10 @@ def _parse_args():
     optional.add_argument(
         '-f', '--force', action='store_true',  required=False, default=False, dest='force',
         help='Force rewriting of existing files. Must be used when output files with the provided name already exist.')
+
+    optional.add_argument(
+        '-r', '--restart', action='store_true',  required=False, default=False, dest='restart',
+        help='Restart an uncompleted run. Not available for the protein mode')
 
     optional.add_argument(
         '-sp', '--species', default='generic', required=False, dest='species', metavar='SPECIES',
@@ -2673,7 +2845,7 @@ def _define_parameters(args):
 
     return {"mode": mode, "target_species": target_species, "abrev": args['abrev'], "tmp": args['tmp'],
             "force": args['force'], "sequences": args['in'], "cpus": cpus, "clade_name": clade_name,
-            "clade_path": args['clade'], "ev_cutoff": ev_cutoff, "domain": domain,
+            "clade_path": args['clade'], "ev_cutoff": ev_cutoff, "domain": domain, "restart": args['restart'],
             "augustus_config_path": augustus_config_path, "tarzip": args['tarzip'],
             "region_limit": region_limit, "flank": flank, "long": args['long']}
 
@@ -2737,7 +2909,7 @@ def main(show_thread=False):
     try:
 
         _logger.add_blank_line()
-        _logger.info('****************** Start a BUSCO %s analysis at %s ******************'
+        _logger.info('****************** Start a BUSCO %s analysis, current time: %s ******************'
                      % (VERSION, time.strftime("%m/%d/%Y %H:%M:%S")))
         _check_path_exist(args['in'])
         _check_path_exist(args['clade'])
@@ -2759,7 +2931,13 @@ def main(show_thread=False):
         _logger.info('Check dependencies...')
         analysis.check_dependencies()
 
-        # 4) Run the analysis
+        # 4) Check invalid header characters
+        _logger.info('Check input file...')
+        for line in open(params['sequences']):
+            if line.startswith('>'):
+                Analysis.check_fasta_header(line)
+
+        # 5) Run the analysis
         analysis.run_analysis()
 
         _logger.add_blank_line()
