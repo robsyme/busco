@@ -309,6 +309,13 @@ class Analysis(object):
                               'Please clean the header of your input file.' % (char, header.strip()))
                 raise SystemExit
 
+        for char in FORBIDDEN_HEADER_CHARS_BEFORE_SPLIT:
+            if char in header.split()[0]:
+                _logger.error('The character \'%s\' is present in the fasta header %s, '
+                              'which will crash BUSCO. '
+                              'Please clean the header of your input file.' % (char, header.split()[0].strip()))
+                raise SystemExit
+
     @staticmethod
     def _check_blast():
         """
@@ -440,8 +447,9 @@ class Analysis(object):
             n += 1
             if '>' not in line:
                 for aa in aas:
-                    if aa in line:
-                        _logger.error('Please provide a nucleotide file as input, it should not contains \'%s\'' % aa)
+                    if aa.upper() in line or aa.lower() in line:
+                        _logger.error('Please provide a nucleotide file as input, it should not contains \'%s or %s\''
+                                      % (aa.upper(), aa.lower()))
                         file.close()
                         raise SystemExit
         file.close()
@@ -466,7 +474,7 @@ class Analysis(object):
             n += 1
             if '>' not in line:
                 for aa in aas:
-                    if aa in line:
+                    if aa.lower() in line or aa.upper() in line:
                         is_aa = True
                         break
         file.close()
@@ -787,6 +795,9 @@ class Analysis(object):
         self._target_species = params['target_species']
         self._augustus_config_path = params['augustus_config_path']
         self._tarzip = params['tarzip']
+        self._dataset_creation_date = params['dataset_creation_date']
+        self._dataset_nb_species = params['dataset_nb_species']
+        self._dataset_nb_buscos = params['dataset_nb_buscos']
         self.mainout = None
         self._totalbuscos = 0
         self._total = 0
@@ -882,7 +893,10 @@ class Analysis(object):
         :param out: a file to which the header will be added
         :type out: file
         """
-        out.write('# BUSCO version is: %s \n# The lineage dataset is: %s\n' % (VERSION, self._clade_name))
+        out.write('# BUSCO version is: %s \n# The lineage dataset is: %s (Creation date: %s,'
+                  ' number of species: %s, number of BUSCOs: %s)\n'
+                  % (VERSION, self._clade_name, self._dataset_creation_date, self._dataset_nb_species,
+                     self._dataset_nb_buscos))
         out.write('# To reproduce this run: %s\n#\n' % _rerun_cmd)
 
     @staticmethod
@@ -1075,6 +1089,7 @@ class Analysis(object):
         # to a FASTA file ('run_XXXX/augustus_output/extracted_proteins').
         _logger.info('Extracting predicted proteins...')
         files = os.listdir('%saugustus_output/predicted_genes' % self.mainout)
+        files.sort()
         for entry in files:
             Analysis.p_open(['sed -i.bak \'1,3d\' %saugustus_output/predicted_genes/%s;'
                              'rm %saugustus_output/predicted_genes/%s.bak'
@@ -1735,6 +1750,7 @@ class Analysis(object):
         """
 
         hmmer_results = os.listdir('%shmmer_output' % self.mainout)
+        hmmer_results.sort()
         hmmer_results_files = []
         for entry in hmmer_results:
             hmmer_results_files.append(entry)
@@ -2203,6 +2219,7 @@ class GenomeAnalysis(Analysis):
         _logger.info('Running HMMER to confirm orthology of predicted proteins:')
 
         files = os.listdir('%saugustus_output/extracted_proteins' % self.mainout)
+        files.sort()
         if not os.path.exists(self.mainout + 'hmmer_output'):
             Analysis.p_open(['mkdir', '%shmmer_output' % self.mainout], 'bash', shell=False)
 
@@ -2426,6 +2443,7 @@ class TranscriptomeAnalysis(Analysis):
         if not os.path.exists('%stranslated_proteins' % self.mainout):
             Analysis.p_open(['mkdir', '%stranslated_proteins' % self.mainout], 'bash', shell=False)
         files = os.listdir(self._tmp)
+        files.sort()
         lista = []
         for entry in files:
             if entry.endswith(self._abrev + str(self._random) + '_.temp'):
@@ -2434,9 +2452,8 @@ class TranscriptomeAnalysis(Analysis):
         _logger.info('Translating candidate transcripts...')
         for entry in lista:
             raw_seq = open(self._tmp + entry)
-            name = entry.split(self._abrev)[0]
-            if name == '':  # if the contig name is _abrev, might happen :)
-                name = self._abrev
+            name = self._abrev.join(entry.replace('_.temp', '')
+                                    .split(self._abrev)[:-1])  # this works even if the runname is in the header
             trans_seq = open(self.mainout + 'translated_proteins/' + name + '.faa', 'w')
             nucl_seq = ''
             header = ''
@@ -2470,6 +2487,7 @@ class TranscriptomeAnalysis(Analysis):
         """
         _logger.info('Running HMMER to confirm transcript orthology:')
         files = os.listdir('%stranslated_proteins/' % self.mainout)
+        files.sort()
         if not os.path.exists('%shmmer_output' % self.mainout):
             Analysis.p_open(['mkdir', '%shmmer_output' % self.mainout], 'bash', shell=False)
 
@@ -2552,6 +2570,7 @@ class GeneSetAnalysis(Analysis):
         if not os.path.exists(self.mainout + 'hmmer_output'):
             Analysis.p_open(['mkdir', '%shmmer_output' % self.mainout], 'bash', shell=False)
         files = os.listdir(self._clade_path + '/hmms')
+        files.sort()
         f2 = open('%sscores_cutoff' % self._clade_path)  # open target scores file
         #   Load dictionary of HMM expected scores and full list of groups
         score_dic = {}
@@ -2580,13 +2599,15 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = '2.0 beta 2'
+VERSION = '2.0 beta 3'
 
 CONTACT = 'mailto:support@orthodb.org'
 
 ROOT_FOLDER = os.getcwd()
 
-FORBIDDEN_HEADER_CHARS = ['/', 'ç', '¬', '¢', '\'', '´', 'ê', 'î', 'ô', 'ŵ', 'ẑ', 'û', 'â', 'ŝ', 'ĝ', 'ĥ', 'ĵ', 'ŷ',
+FORBIDDEN_HEADER_CHARS_BEFORE_SPLIT = ['/', '\'']
+
+FORBIDDEN_HEADER_CHARS = ['ç', '¬', '¢', '´', 'ê', 'î', 'ô', 'ŵ', 'ẑ', 'û', 'â', 'ŝ', 'ĝ', 'ĥ', 'ĵ', 'ŷ',
                           'ĉ', 'é', 'ï', 'ẅ', 'ë', 'ẅ', 'ë', 'ẗ,', 'ü', 'í', 'ö', 'ḧ', 'é', 'ÿ', 'ẍ', 'è', 'é',
                           'à', 'ä', '¨', '€', '£', 'á']
 
@@ -2720,6 +2741,9 @@ def _define_parameters(args):
         target_species = None
         clade_name = None
         domain = None
+        dataset_creation_date = "N/A"
+        dataset_nb_buscos = "N/A"
+        dataset_nb_species = "N/A"
         # load the dataset config, or warn the user if not present
         try:
             target_species_file = open('%sdataset.cfg' % args['clade'])
@@ -2730,6 +2754,12 @@ def _define_parameters(args):
                     target_species = l.strip().split("=")[1]
                 elif l.split("=")[0] == "domain":
                     domain = l.strip().split("=")[1]
+                elif l.split("=")[0] == "creation_date":
+                    dataset_creation_date = l.strip().split("=")[1]
+                elif l.split("=")[0] == "number_of_BUSCOs":
+                    dataset_nb_buscos = l.strip().split("=")[1]
+                elif l.split("=")[0] == "number_of_species":
+                    dataset_nb_species = l.strip().split("=")[1]
             if domain != 'prokaryota' and domain != 'eukaryota':
                 _logger.error('Corrupted dataset.cfg file: domain is %s, should be eukaryota or prokaryota' % domain)
                 raise SystemExit
@@ -2847,7 +2877,10 @@ def _define_parameters(args):
             "force": args['force'], "sequences": args['in'], "cpus": cpus, "clade_name": clade_name,
             "clade_path": args['clade'], "ev_cutoff": ev_cutoff, "domain": domain, "restart": args['restart'],
             "augustus_config_path": augustus_config_path, "tarzip": args['tarzip'],
-            "region_limit": region_limit, "flank": flank, "long": args['long']}
+            "region_limit": region_limit, "flank": flank, "long": args['long'],
+            "dataset_creation_date": dataset_creation_date, "dataset_nb_species": dataset_nb_species,
+            "dataset_nb_buscos": dataset_nb_buscos
+            }
 
 
 def _check_path_exist(path):

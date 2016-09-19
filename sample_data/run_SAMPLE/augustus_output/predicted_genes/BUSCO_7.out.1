@@ -6,7 +6,7 @@
 # Using protein profile unknown
 # --[0..436]--> unknown_A (160) <--[0..3]--> unknown_B (26) <--[2..24]--> unknown_C (14) <--[4..160]--
 # fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_3715919971_.temp is in fasta format.
+# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10717, name = sample) -----
@@ -24,6 +24,11 @@ sample	AUGUSTUS	CDS	164621	165031	0.94	-	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	start_codon	165029	165031	.	-	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	exon	165463	165618	.	-	.	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	tss	165618	165618	.	-	.	transcript_id "g1.t1"; gene_id "g1";
+# coding sequence = [atggcggtggcaagtgccgccaactctggtcgggactacctgccacgcccccaggccagagcctatgtctacggcacgc
+# ccccgcccagcacgatggcccagctgcggcggataatccaaggtcacctggagcgcttccagcaggctgagcagacccacttttcccgccgcgccaac
+# gtgcagctggggaaatcggaactgccggcggagagaaaaccgctggcgatgcaactgtgggtggttcgcacgcccgccgtttccggcgcggcctcgga
+# taacgtcctcgattacgccctgccgcccaacacacccactccgaaggactacgcgcacaaattcctgcccgagggcaaggatgtggtacccggaagct
+# cttacataccgctgcggttggtggtgataaagcgctga]
 # protein sequence = [MAVASAANSGRDYLPRPQARAYVYGTPPPSTMAQLRRIIQGHLERFQQAEQTHFSRRANVQLGKSELPAERKPLAMQL
 # WVVRTPAVSGAASDNVLDYALPPNTPTPKDYAHKFLPEGKDVVPGSSYIPLRLVVIKR]
 # end gene g1
@@ -40,10 +45,18 @@ sample	AUGUSTUS	tts	169293	169293	.	+	.	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	protein_match	168463	168942	2.96	+	0	target "unknown_A[1..160]"; target_start 23; transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	protein_match	168952	169029	3.34	+	0	target "unknown_B[1..26]"; target_start 186; transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	protein_match	169093	169134	2	+	0	target "unknown_C[1..14]"; target_start 233; transcript_id "g2.t1"; gene_id "g2";
+# coding sequence = [atggcgcgtctctacgattcccgcaccacgatcttttcgcctgagggccgactgtaccaggtagagtacgcgatggagg
+# ccgcttcgcagtcgaacacttgcctgggcatcctggccaagaacggagtcattttggctacggagcgaagcgtggacaagctcttggactcgagcatt
+# cctgcgcccaggatctgcaggctgaacgaggacgctgcctgttgcgccacgggcaacaaggcggatggaaacgtgctgaccaccgaattgcgcctgat
+# cgcccaacaatatgttagcacctacggtgagatgattccttgcgagcagctggtcacgaacctgtgtgacatcaaacaggcgtatacgcaatacggcg
+# gcaagcgacccttcggggtatcctttctgtacatgggctgggactgccgcttcgggttccagctgtatcagtccgatcccagtgggaactacagtggc
+# tggaaggccacatgcattggccgcaaatcaggggcggccatggaaatgcttcagaaggaactattcagcaagggctacgcaagtccctcgctcgagga
+# agccaaggatgtagccatcaaggtcatgggcatgaccttggatagagatagcttgacccctgcgaagctggaaatggctgtactacagcgcttctata
+# acaccaccatatttcatatcttagagaaaattgaggtacacaacctaattcagaagcataacattttgcagtttcaaatcgccaggcgaaagtattaa]
 # protein sequence = [MARLYDSRTTIFSPEGRLYQVEYAMEAASQSNTCLGILAKNGVILATERSVDKLLDSSIPAPRICRLNEDAACCATGN
 # KADGNVLTTELRLIAQQYVSTYGEMIPCEQLVTNLCDIKQAYTQYGGKRPFGVSFLYMGWDCRFGFQLYQSDPSGNYSGWKATCIGRKSGAAMEMLQK
 # ELFSKGYASPSLEEAKDVAIKVMGMTLDRDSLTPAKLEMAVLQRFYNTTIFHILEKIEVHNLIQKHNILQFQIARRKY]
 # end gene g2
 ###
 # command line:
-# augustus --proteinprofile=sample_data/example/prfl/BUSCO_7.prfl --predictionStart=163394 --predictionEnd=174110 --species=fly ./tmp/sampleSAMPLE_3715919971_.temp
+# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_7.prfl --predictionStart=163394 --predictionEnd=174110 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp

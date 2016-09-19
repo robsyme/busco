@@ -6,7 +6,7 @@
 # Using protein profile unknown
 # --[0..111]--> unknown_A (17) <--[0..101]--
 # fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_3715919971_.temp is in fasta format.
+# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10482, name = sample) -----
@@ -25,6 +25,18 @@ sample	AUGUSTUS	CDS	27827	28553	0.85	-	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	exon	27827	28731	.	-	.	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	start_codon	28551	28553	.	-	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	tss	28731	28731	.	-	.	transcript_id "g1.t1"; gene_id "g1";
+# coding sequence = [atggaggcatctgctgccaaaatcacacccatggccagttccacgtccacttccggatccataaactccccttccagtg
+# acaaaatgaactacgcactccaagtggcgctgcaaactatcaaggagcggtgcatccagctgcagcgccgcgtggccagcatggaggaggagaaccag
+# cgactgagggaagcctccagcaggtcagaaggtgctccaactgcaaaggaaatcggggtcactggggatgtactctccctcaaagcccaggtctctga
+# gctgcagcgccaaaaggagcagctggaggagcacattagcatggtgtccaacgagaacagacgcctctggtcccgtctgtcgcagatctccaaggatc
+# agcagctaaacgcagtgcccagctcatccgactcgcgtgcccagcaaaaccagaacctggtgcgctccaagacctttacgcaacactcccccaatcct
+# caccttcgccaaaagatgctgtcagacgggataaaggatctcagcctggaggaaatagccttggatgacttcggtgccagtagcggggaactaggtta
+# cccttacaacctgcaaaaggtggaggaaaccaccagtgaacctgatgccaatgtggatgccaaaagatgtatggatggactgcaggagatgaggcgag
+# aggccatgaagcagcagcaggagctcagttcggctctgactttactagaaagtcgcatagcactgaagccctgtccggaatgtgcccagaaaaccttc
+# aaaaagccggagatggccgacaaaagtctggaaacggacgacagcctgaccagcgaactgaagaactatgagagccagcacaatggacacaatggaac
+# accgcccagccagagaatcaatatcatacaagagaaaatcaaagcagacgcagccgatgcaatggagaagatctgccctatgtgcggcaagcagtact
+# ccagccaagtgtctttcaatgccttccgcgagcacgtcgagatgcacttcatcgacgatgcactggagttggaatccgagaacagcatggagcgccag
+# ttcgagtttgtttcccatgcg]
 # protein sequence = [MEASAAKITPMASSTSTSGSINSPSSDKMNYALQVALQTIKERCIQLQRRVASMEEENQRLREASSRSEGAPTAKEIG
 # VTGDVLSLKAQVSELQRQKEQLEEHISMVSNENRRLWSRLSQISKDQQLNAVPSSSDSRAQQNQNLVRSKTFTQHSPNPHLRQKMLSDGIKDLSLEEI
 # ALDDFGASSGELGYPYNLQKVEETTSEPDANVDAKRCMDGLQEMRREAMKQQQELSSALTLLESRIALKPCPECAQKTFKKPEMADKSLETDDSLTSE
@@ -52,6 +64,16 @@ sample	AUGUSTUS	CDS	30008	30091	0.93	+	0	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	exon	30008	30181	.	+	.	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	stop_codon	30089	30091	.	+	0	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	tts	30181	30181	.	+	.	transcript_id "g2.t1"; gene_id "g2";
+# coding sequence = [atgttttgcggcaagagtttagtcaataatttctacaaatataagagaaagatgtggcagaatgtagtcccaataatac
+# agcgtggcaagggaacttaccacccactaaaaattctctttttcggcaccgattacttttccttgcccagcttacaggcgctacacaaaaactgcggt
+# gaccacttgggagttgttacctccttcaaaaatcccgccaactgtgtgaggacctatgcggaaaaggagaagcttcccctgcaaaagtggcccataga
+# tccatctgtgtgtcctaagtttgacctgggcgtcgtggtttcctttggccacctgattcctgctaatatcatacatggatttcctaatggaatgatca
+# atgttcatgctagtctattgcccaggtggcgaggagctgctcccatcatatatgcgatcatgaagggagatgccatcactggggtttccatcatgaaa
+# atcgaacctcaccggtttgatattggtgcaattttagctcagcgggaggtggcgattgagcccaatgtcttcatgccggacttgcacgcatctttggc
+# gtcgttaggggcagatttactagtggatacggttaacaacctgtcagtacgacttaaggaagccaaaccccaggatagtacaaagaccagctatgctc
+# ccaagatcaccagtaaaataacagaagtcaattggtcggagctgagtgcccttgacatatacacgcgtcatagagctttgtttggctacaaaaacctt
+# accaccagctttttgagcaagcaagtgcagctgctagagctacctgaggaaggcgagatccctggtaattggatgtgctcagcacagccagttggagg
+# tgcttcaattacgcgtagaaggtag]
 # protein sequence = [MFCGKSLVNNFYKYKRKMWQNVVPIIQRGKGTYHPLKILFFGTDYFSLPSLQALHKNCGDHLGVVTSFKNPANCVRTY
 # AEKEKLPLQKWPIDPSVCPKFDLGVVVSFGHLIPANIIHGFPNGMINVHASLLPRWRGAAPIIYAIMKGDAITGVSIMKIEPHRFDIGAILAQREVAI
 # EPNVFMPDLHASLASLGADLLVDTVNNLSVRLKEAKPQDSTKTSYAPKITSKITEVNWSELSALDIYTRHRALFGYKNLTTSFLSKQVQLLELPEEGE
@@ -76,6 +98,13 @@ sample	AUGUSTUS	exon	31215	31421	.	-	.	transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	tss	31421	31421	.	-	.	transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	protein_match	30482	30486	2.3	-	2	target "unknown_A[16..17]"; target_start 93; transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	protein_match	30543	30588	8.96	-	0	target "unknown_A[1..16]"; target_start 93; transcript_id "g3.t1"; gene_id "g3";
+# coding sequence = [atgtccagaaatttgtttttatcaattacaaacttatttaggaacttggagagcctgttcctgccacatggaggacacc
+# ctcctgctctagcgttggccggttttcagcatgatcacagccatagatcctcccaggaattcagtttgaagcagcttattggcgacggaatgctgtgg
+# gctgttccgaaacacaggagatccgtggagaaacgcctgaagcggaagttcggatatccggaatacaattggaagcctctgagggagaagaggaacat
+# ccgctcctgtctgcaatgtggccatgaccacgagatgggggttctttgtcctttctgctaccaaaaagtcctgaaggagactgagctcatgcagtcga
+# aaatccaggagacactgggtctagatcccgtggacaaggaagtaatcgttctttatgagggcgagaaagccgaacagtcctcagatgagctgaaaaac
+# aaacgcatcgtggagatgaagaagcctcgtcccatgtggttcaccaagaatctgctccaaaaatccacgcagcaattgtccgaaaccaaggaagtcaa
+# gccctccgacttggcctag]
 # protein sequence = [MSRNLFLSITNLFRNLESLFLPHGGHPPALALAGFQHDHSHRSSQEFSLKQLIGDGMLWAVPKHRRSVEKRLKRKFGY
 # PEYNWKPLREKRNIRSCLQCGHDHEMGVLCPFCYQKVLKETELMQSKIQETLGLDPVDKEVIVLYEGEKAEQSSDELKNKRIVEMKKPRPMWFTKNLL
 # QKSTQQLSETKEVKPSDLA]
@@ -90,9 +119,12 @@ sample	AUGUSTUS	start_codon	32021	32023	.	+	0	transcript_id "g4.t1"; gene_id "g4
 sample	AUGUSTUS	CDS	32021	32275	0.67	+	0	transcript_id "g4.t1"; gene_id "g4";
 sample	AUGUSTUS	stop_codon	32273	32275	.	+	0	transcript_id "g4.t1"; gene_id "g4";
 sample	AUGUSTUS	tts	32490	32490	.	+	.	transcript_id "g4.t1"; gene_id "g4";
+# coding sequence = [atggcctgcttgagcacttccggtcgcgtcgtctgcggctcccgtcgccagcagacgcacaagctgctctaccagctat
+# tcggatcccggccaggatatacagccccatccaccgcgaccggattattcagtccgcccaaagtccaacagcaggccatgcgactctgccacggatta
+# agcttcagcttgggcaaggattaccccgatctgctggtaagttcattgccggatgaagcctacaccgcgaaaaaatag]
 # protein sequence = [MACLSTSGRVVCGSRRQQTHKLLYQLFGSRPGYTAPSTATGLFSPPKVQQQAMRLCHGLSFSLGKDYPDLLVSSLPDE
 # AYTAKK]
 # end gene g4
 ###
 # command line:
-# augustus --proteinprofile=sample_data/example/prfl/BUSCO_1.prfl --predictionStart=25227 --predictionEnd=35708 --species=fly ./tmp/sampleSAMPLE_3715919971_.temp
+# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_1.prfl --predictionStart=25227 --predictionEnd=35708 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp

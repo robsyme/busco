@@ -6,7 +6,7 @@
 # Using protein profile unknown
 # --[51..127]--> unknown_A (43) <--[2..166]--
 # fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_3715919971_.temp is in fasta format.
+# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10871, name = sample) -----
@@ -23,6 +23,20 @@ sample	AUGUSTUS	start_codon	228867	228869	.	+	0	transcript_id "g1.t1"; gene_id "
 sample	AUGUSTUS	CDS	228867	230189	0.74	+	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	stop_codon	230187	230189	.	+	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	tts	231702	231702	.	+	.	transcript_id "g1.t1"; gene_id "g1";
+# coding sequence = [atggagctgcgcgtgggtaacaaataccgcctgggccgtaagataggatcgggatcgttcggcgacatctacctgggaa
+# ccacgatcaacactggcgaggaggtggccatcaagctggagtgcatccgcaccaagcacccccagctgcacatcgagtcgaagttctacaagacgatg
+# cagggcggcataggtataccccgcataatctggtgcggcagcgagggcgactacaatgtgatggtgatggagctactcggaccctcgctggaggacct
+# cttcaacttttgttcgcgccgcttttcgttgaagacggttctgctgctggcggaccagatgatctcccgcatcgattacatacactcgcgggacttca
+# tccatcgcgacattaagccggataacttcctcatgggtcttggcaagaagggcaacctggtgtacatcattgactttgggctggccaagaagttccgg
+# gatgcccggtcgctgaagcacattccctatcgggaaaacaagaacctcacgggcactgcccgctatgcctccatcaacacacatttgggcattgagca
+# atcgcgtcgcgacgacctggaatctcttggctatgtcctcatgtacttcaatctgggagccttgccctggcagggcctaaaggcagccaacaagaggc
+# aaaagtacgagaggatctccgagaagaagctgtccacttcgattgtggtgctgtgcaagggcttccccagcgagttcgtcaactatctgaacttctgt
+# cgccagatgcatttcgaccagcgtccagattactgccacctgcgcaagctcttccggaacctgttccaccgattgggcttcacttatgactatgtgtt
+# tgactggaacctgcttaagtttggcggaccacggaatcctcaggccattcagcaggcgcaggacggcgcggacggtcaggcgggacatgatgccgtgg
+# ccgcagcagcggcagtggcagcagcggcagccgcctcctcgcatcaacagcagcagcacaaggtcaatgcggcgcttggcggcggagggggcagtgca
+# gcgcaacagcaactccagggcggccaaacgctggcgatgctgggcggcaatggaggcggaaacggcagccaactgatcggcggcaacggactcaacat
+# ggacgactcgatggcggccaccaactcgtcgagaccgccctacgacacgccggagcgtcggccctcgatacggatgcgccagggaggcggagcaggcg
+# gcggtggagtgggtgtgggcggtatgcagagcggcggagggggcggtggcgtggggaacgccaaataa]
 # protein sequence = [MELRVGNKYRLGRKIGSGSFGDIYLGTTINTGEEVAIKLECIRTKHPQLHIESKFYKTMQGGIGIPRIIWCGSEGDYN
 # VMVMELLGPSLEDLFNFCSRRFSLKTVLLLADQMISRIDYIHSRDFIHRDIKPDNFLMGLGKKGNLVYIIDFGLAKKFRDARSLKHIPYRENKNLTGT
 # ARYASINTHLGIEQSRRDDLESLGYVLMYFNLGALPWQGLKAANKRQKYERISEKKLSTSIVVLCKGFPSEFVNYLNFCRQMHFDQRPDYCHLRKLFR
@@ -43,6 +57,13 @@ sample	AUGUSTUS	exon	233446	234117	.	+	.	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	stop_codon	233964	233966	.	+	0	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	tts	234117	234117	.	+	.	transcript_id "g2.t1"; gene_id "g2";
 sample	AUGUSTUS	protein_match	233631	233759	4.4	+	0	target "unknown_A[1..43]"; target_start 104; transcript_id "g2.t1"; gene_id "g2";
+# coding sequence = [atgggagcccgacagtctcaatcccgcgaggcccgatccgtttcgatggaaaacccaactcctgccggcgttattgata
+# tatccgacgatgtggtcaagcgattgaaggcgggaatatcccagcaggctcgtgagcacgcagccgctgcggaggactcgaagccggcgcccaagcca
+# acggcaaaggctgctgccaagccagccgcatcctcgccagctgctcctgctccgaaagtatcctcctatcccgctgcagtgcccatttacgtccaggg
+# aggaggacacaccatcagcgcggctgatgtgcagcgccagatgaaccaggagctgattaagaacgacgagctgtggaaggagcgcatggccaagttgg
+# aggagaacctcaagaagaccaacaccatcctggagaaggagtatgccaatgctgtagacaatgtgcacaagcgattcgtcagcaccgcgtcgtcgcac
+# aaagtgcctccctgccaggacctgaaatcccagctgctcgcctgctaccgcgcgcatcccggagagaccttgaaatgcatggaggaggtggcccagtt
+# ccgacagtgcatcgatctgcatcgcgtccagaagctggatgcggaaccagagacgctgaaagttgccaaggcggcctag]
 # protein sequence = [MGARQSQSREARSVSMENPTPAGVIDISDDVVKRLKAGISQQAREHAAAAEDSKPAPKPTAKAAAKPAASSPAAPAPK
 # VSSYPAAVPIYVQGGGHTISAADVQRQMNQELIKNDELWKERMAKLEENLKKTNTILEKEYANAVDNVHKRFVSTASSHKVPPCQDLKSQLLACYRAH
 # PGETLKCMEEVAQFRQCIDLHRVQKLDAEPETLKVAKAA]
@@ -67,6 +88,25 @@ sample	AUGUSTUS	exon	237366	237931	.	-	.	transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	start_codon	237520	237522	.	-	0	transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	exon	238023	238509	.	-	.	transcript_id "g3.t1"; gene_id "g3";
 sample	AUGUSTUS	tss	238509	238509	.	-	.	transcript_id "g3.t1"; gene_id "g3";
+# coding sequence = [atgcattccgaggtactagtcggattcctgtgggctggcctgctggcgttcagctgggcaggagtcaccacccagccgc
+# cgccactgattcgcaccctgagtgccggaggagacataggaccccagtttgatgtgggcaagcacaaggaacccgaagatgcggaattctggcacaaa
+# gtgggcctgcggcagctggagaagaccattaagcaggcccagcgggtgaaggagcactcctaccagaagaaggcccggaacatcatcatcttcatcgg
+# ggacggcatgggagtatccacgatcagtgctgggcgcatctacaagggacagtacctgaagcacggccacggcgaggaggaacatctcgtcttcgacg
+# atttcccaaacactggaatggccaagacttacaatgtggacaaacaggttccggactcggcgggcactgccactgcgatcttctcgggatcgaaaacc
+# cactacggagccattggaatggatgccacccgctccaagaagaacggccagcagggcagggtccaaagcgtcatggagtgggcccagaaggagggcaa
+# gcgtactggagtggtcaccacaaccaggatcacccatgccacgcctgccgccacgtacgcccacatctacgaccgggattgggagtgcgacacggaag
+# tgcccgcggaatcggtgggcattcatgttgatattgcccgtcagttggtggaaaatgctcctggaaatcgattcaatgtaatcctgggcggaggaatg
+# tcccccatgggcatcctgaatgcctccgaggtgaagactacgatttttgaaggacccacggaaacaatttgcagccgaggtgataaacggaatcttcc
+# ggccgagtggttggctcatcacgccaacgatacagttcctccagcattggtacacaaccggaacgatctgctcaatgtgaatgttaaggaggtggacc
+# acttgatggggctgttccgaaacaatcacatcacttactccatagccagagaggaaggagagccttccctgcaggagatgacggagacggccttggga
+# atcctagaaagaggcgacgagtcaaagggttatgtgctcctagtagaaggcggtcgcattgaccagggtcaccacatgaactatgcccgtgctgccct
+# tcatgagctgtacgaattcgatttggcaatccaagcggccgtgaacaacacagatcccgaagaaacgttgatcctggtgaccgccgaccattcccacg
+# cggttaccttcaatggttacgccctccgaggagctgatatcctgggaacagccaattcgcacgagaaaaacgatcccatgttctacgagaccatctcg
+# tatgccaatggtcctggatattgggatcacttggcgaatgactccagacctcagaacagttccaacatgtggatgcccttgaagcattttacggaaga
+# ggagaggactgcacccacctatcgccacttggcaacggtgccgagaaaggatgaaacccacggcggcgaggatgtggctgtttttgcatatggccctg
+# gatccagtttggttcgcggggtcttcgagcagaactatttggcctatgtgatgagctacgcgggctgcttgggtcccgccaaggacttcgacgactct
+# tgcgaggatcataaggatgagcaaagggagaggccgctgaacaaaccgaatcccaagagaagtggtgcctctgatttgggaacctccttgatccccat
+# cgtgactgcagccactgcgggtattttatgcggtcacaggctgtaa]
 # protein sequence = [MHSEVLVGFLWAGLLAFSWAGVTTQPPPLIRTLSAGGDIGPQFDVGKHKEPEDAEFWHKVGLRQLEKTIKQAQRVKEH
 # SYQKKARNIIIFIGDGMGVSTISAGRIYKGQYLKHGHGEEEHLVFDDFPNTGMAKTYNVDKQVPDSAGTATAIFSGSKTHYGAIGMDATRSKKNGQQG
 # RVQSVMEWAQKEGKRTGVVTTTRITHATPAATYAHIYDRDWECDTEVPAESVGIHVDIARQLVENAPGNRFNVILGGGMSPMGILNASEVKTTIFEGP
@@ -77,4 +117,4 @@ sample	AUGUSTUS	tss	238509	238509	.	-	.	transcript_id "g3.t1"; gene_id "g3";
 # end gene g3
 ###
 # command line:
-# augustus --proteinprofile=sample_data/example/prfl/BUSCO_8.prfl --predictionStart=228045 --predictionEnd=238915 --species=fly ./tmp/sampleSAMPLE_3715919971_.temp
+# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_8.prfl --predictionStart=228045 --predictionEnd=238915 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp

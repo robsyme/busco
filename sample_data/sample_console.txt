@@ -1,81 +1,73 @@
+INFO	****************** Start a BUSCO 2.0 beta 3 analysis, current time: 10/07/2016 14:44:32 ******************
+INFO	The lineage dataset is: sample dataset BUSCO 2.0 (eukaryota)
+INFO	Mode is: genome
+INFO	Maximum number of regions limited to: 3
+INFO	To reproduce this run: python ./BUSCO.py -i sample_data/target.fa -o SAMPLE -l sample_data/example/ -m genome -c 1
+INFO	Check dependencies...
+INFO	Check input file...
+INFO	Temp directory is ./tmp/
 
-INFO:BUSCO.py	****************** Start a BUSCO beta 2.0 analysis at 08/19/2016 16:41:09 ******************
-INFO:BUSCO.py	The dataset is sample dataset BUSCO 2.0 (eukaryota)
-INFO:BUSCO.py	Mode is: genome
-INFO:BUSCO.py	Maximum number of regions limited to: 3
-INFO:BUSCO.py	To reproduce this run: python ./BUSCO.py -i sample_data/target.fa -o SAMPLE -l sample_data/example/ -m genome -c 1
-INFO:BUSCO.py	Check dependencies...
-INFO:BUSCO.py	Temp directory is ./tmp/
+INFO	****** Phase 1 of 2, initial predictions ******
+INFO	****** Step 1/3, current time: 10/07/2016 14:44:32 ******
+INFO	Create blast database...
+INFO	[makeblastdb]	Building a new DB, current time: 10/07/2016 14:44:32
+INFO	[makeblastdb]	New DB name:   /home/xxx/tmp/SAMPLE_1214242381
+INFO	[makeblastdb]	New DB title:  sample_data/target.fa
+INFO	[makeblastdb]	Sequence type: Nucleotide
+INFO	[makeblastdb]	Keep MBits: T
+INFO	[makeblastdb]	Maximum file size: 1000000000B
+INFO	[makeblastdb]	Adding sequences from FASTA; added 1 sequences in 0.010582 seconds.
+INFO	Running tblastn, writing output to /home/xxx/run_SAMPLE/blast_output/tblastn_SAMPLE.tsv...
+INFO	****** Step 2/3, current time: 10/07/2016 14:44:32 ******
+INFO	Getting coordinates for candidate regions...
+INFO	Pre-Augustus scaffold extraction...
+INFO	Running Augustus prediction using fly as species:
+INFO	[augustus] Please find all logs related to Augustus here: /home/xxx/run_SAMPLE/augustus_output/augustus.log
+INFO	10/07/2016 14:44:32 =>	0% of predictions performed (8 to be done)
+INFO	10/07/2016 14:45:03 =>	50% of predictions performed (5/8 candidate regions)
+INFO	10/07/2016 14:45:16 =>	100% of predictions performed
+INFO	Extracting predicted proteins...
+INFO	****** Step 3/3, current time: 10/07/2016 14:45:16 ******
+INFO	Running HMMER to confirm orthology of predicted proteins:
+INFO	10/07/2016 14:45:16 =>	0% of predictions performed (8 to be done)
+INFO	10/07/2016 14:45:16 =>	50% of predictions performed (5/8 candidate proteins)
+INFO	10/07/2016 14:45:16 =>	100% of predictions performed
+INFO	Results:
+INFO	C:80.0%[S:80.0%,D:0.0%],F:0.0%,M:20.0%,n:10
+INFO	8 Complete BUSCOs (C)
+INFO	8 Complete and single-copy BUSCOs (S)
+INFO	0 Complete and duplicated BUSCOs (D)
+INFO	0 Fragmented BUSCOs (F)
+INFO	2 Missing BUSCOs (M)
+INFO	10 Total BUSCO groups searched
 
-INFO:BUSCO.py	****** Phase 1 of 2, initial predictions ******
-INFO:BUSCO.py	****** Step 1/3 ******
-INFO:BUSCO.py	Create blast database ...
-INFO:BUSCO.py	[makeblastdb]	Building a new DB, current time: 08/19/2016 16:41:09
-INFO:BUSCO.py	[makeblastdb]	New DB name:   /home/xxx/tmp/SAMPLE_3715919971
-INFO:BUSCO.py	[makeblastdb]	New DB title:  sample_data/target.fa
-INFO:BUSCO.py	[makeblastdb]	Sequence type: Nucleotide
-INFO:BUSCO.py	[makeblastdb]	Keep Linkouts: T
-INFO:BUSCO.py	[makeblastdb]	Keep MBits: T
-INFO:BUSCO.py	[makeblastdb]	Maximum file size: 1000000000B
-INFO:BUSCO.py	[makeblastdb]	Adding sequences from FASTA; added 1 sequences in 0.0091989 seconds.
-INFO:BUSCO.py	Running tblastn, writting output to /home/xxx/run_SAMPLE/blast_output/tblastn_SAMPLE.tsv ...
-INFO:BUSCO.py	Getting coordinates for candidate regions ...
-INFO:BUSCO.py	****** Step 2/3 ******
-INFO:BUSCO.py	Pre-Augustus scaffold extraction ...
-INFO:BUSCO.py	Running Augustus prediction using fly as species:
-INFO:BUSCO.py	[augustus] Please find all log related to Augustus here: /home/xxx/run_SAMPLE/augustus_output/augustus.log
-INFO:BUSCO.py	08/19/2016 16:41:13 =>	0% of predictions performed (1/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:16 =>	10% of predictions performed (2/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:21 =>	20% of predictions performed (3/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:24 =>	30% of predictions performed (4/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:27 =>	40% of predictions performed (5/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:30 =>	50% of predictions performed (6/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:40 =>	60% of predictions performed (7/8 candidate regions)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	100% of predictions performed
-INFO:BUSCO.py	Extracting predicted proteins ...
-INFO:BUSCO.py	****** Step 3/3 ******
-INFO:BUSCO.py	Running HMMER to confirm orthology of predicted proteins:
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	0% of predictions performed (1/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	10% of predictions performed (2/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	20% of predictions performed (3/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	30% of predictions performed (4/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	40% of predictions performed (5/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	50% of predictions performed (6/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	60% of predictions performed (7/8 candidate proteins)
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	100% of predictions performed
-INFO:BUSCO.py	Results:
-INFO:BUSCO.py	C:80.0%[S:80.0%,D:0.0%],F:0.0%,M:20.0%,n:10
-INFO:BUSCO.py	8 Complete BUSCOs (C)
-INFO:BUSCO.py	8 Complete and single-copy BUSCOs (S)
-INFO:BUSCO.py	0 Complete and duplicated BUSCOs (D)
-INFO:BUSCO.py	0 Fragmented BUSCOs (F)
-INFO:BUSCO.py	2 Missing BUSCOs (M)
-INFO:BUSCO.py	10 Total BUSCO groups searched
+INFO	****** Phase 2 of 2, predictions using species specific training ******
+INFO	****** Step 1/3, current time: 10/07/2016 14:45:16 ******
+INFO	Extracting missing and fragmented buscos from the ancestral_variants file...
+INFO	Running tblastn, writing output to /home/xxx/run_SAMPLE/blast_output/tblastn_SAMPLE_missing_and_frag_rerun.tsv...
+INFO	Getting coordinates for candidate regions...
+INFO	****** Step 2/3, current time: 10/07/2016 14:45:16 ******
+INFO	Training Augustus using Single-Copy Complete BUSCOs:
+INFO	10/07/2016 14:45:16 =>	Converting predicted genes to short genbank files...
+INFO	10/07/2016 14:45:16 =>	All files converted to short genbank files, now running the training scripts...
+INFO	Pre-Augustus scaffold extraction...
+INFO	Re-running Augustus with the new metaparameters, number of target BUSCOs: 2
+INFO	10/07/2016 14:45:16 =>	0% of predictions performed (0 to be done)
+INFO	10/07/2016 14:45:16 =>	100% of predictions performed
+INFO	Extracting predicted proteins...
+INFO	****** Step 3/3, current time: 10/07/2016 14:45:16 ******
+INFO	Running HMMER to confirm orthology of predicted proteins:
+INFO	10/07/2016 14:45:16 =>	0% of predictions performed (0 to be done)
+INFO	10/07/2016 14:45:16 =>	100% of predictions performed
+INFO	Results:
+INFO	C:80.0%[S:80.0%,D:0.0%],F:0.0%,M:20.0%,n:10
+INFO	8 Complete BUSCOs (C)
+INFO	8 Complete and single-copy BUSCOs (S)
+INFO	0 Complete and duplicated BUSCOs (D)
+INFO	0 Fragmented BUSCOs (F)
+INFO	2 Missing BUSCOs (M)
+INFO	10 Total BUSCO groups searched
 
-INFO:BUSCO.py	****** Phase 2 of 2, predictions using species specific training ******
-INFO:BUSCO.py	****** Step 1/3 ******
-INFO:BUSCO.py	Extracting missing and fragmented buscos from ancestral_variants file ...
-INFO:BUSCO.py	Running tblastn, writting output to /home/xxx/run_SAMPLE/blast_output/tblastn_SAMPLE_missing_and_frag_rerun.tsv ...
-INFO:BUSCO.py	Getting coordinates for candidate regions ...
-INFO:BUSCO.py	****** Step 2/3 ******
-INFO:BUSCO.py	Training Augustus using Single-Copy Complete BUSCOs:
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	Converting predicted genes to to short genbank files ...
-INFO:BUSCO.py	08/19/2016 16:41:46 =>	All files converted to short genbank files, now running the training scripts ...
-INFO:BUSCO.py	Re-running Augustus with the new metaparameters, number of target BUSCOs: 2
-INFO:BUSCO.py	08/19/2016 16:41:47 =>	100% of predictions performed
-INFO:BUSCO.py	Extracting predicted proteins ...
-INFO:BUSCO.py	****** Step 3/3 ******
-INFO:BUSCO.py	Running HMMER to confirm orthology of predicted proteins:
-INFO:BUSCO.py	08/19/2016 16:41:47 =>	100% of predictions performed
-INFO:BUSCO.py	Results:
-INFO:BUSCO.py	C:80.0%[S:80.0%,D:0.0%],F:0.0%,M:20.0%,n:10
-INFO:BUSCO.py	8 Complete BUSCOs (C)
-INFO:BUSCO.py	8 Complete and single-copy BUSCOs (S)
-INFO:BUSCO.py	0 Complete and duplicated BUSCOs (D)
-INFO:BUSCO.py	0 Fragmented BUSCOs (F)
-INFO:BUSCO.py	2 Missing BUSCOs (M)
-INFO:BUSCO.py	10 Total BUSCO groups searched
-
-INFO:BUSCO.py	BUSCO analysis done. Total running time: 37.175856828689575 seconds
-INFO:BUSCO.py	Results written in /home/xxx/run_SAMPLE/
+INFO	BUSCO analysis done. Total running time: 44.87434911727905 seconds
+INFO	Results written in /home/xxx/run_SAMPLE/
 

@@ -1,0 +1,2 @@
+Beta 3
+- Improve the detection of problematic special characters in the fasta header and sequences
