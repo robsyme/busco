@@ -1,2 +1,9 @@
-Beta 3
+2.0 beta 4
+- Sort the results by BUSCO ids in the full table output file
+- Allow the user to pass custom Augustus parameters
+
+2.0 beta 3
 - Improve the detection of problematic special characters in the fasta header and sequences
+
+2.0 beta
+- The 1.0 code was debugged and new functionalities were added. See the user guide

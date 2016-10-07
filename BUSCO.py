@@ -316,6 +316,12 @@ class Analysis(object):
                               'Please clean the header of your input file.' % (char, header.split()[0].strip()))
                 raise SystemExit
 
+        if header.split()[0] == '>':
+            _logger.error('A space is present in the fasta header %s, directly after \'>\' '
+                          'which will crash BUSCO. '
+                          'Please clean the header of your input file.' % (header.strip()))
+            raise SystemExit
+
     @staticmethod
     def _check_blast():
         """
@@ -371,6 +377,18 @@ class Analysis(object):
         start = seq_id.replace(']', '').split('[')[-1].split(':')[-1].split('-')[0]
         end = seq_id.replace(']', '').split('[')[-1].split(':')[-1].split('-')[1]
         return {'id': name, 'start': start, 'end': end}
+
+    @staticmethod
+    def _reformats_seq_id(seq_id):
+        """
+        This function reformats the sequence id to its original values, if it was somehow modified during the process
+        It has to be overriden by subclasses when needed
+        :param seq_id: the seq id to reformats
+        :type seq_id: str
+        :return: the reformatted seq_id
+        :rtype: str
+        """
+        return seq_id
 
     def check_dataset(self):
         """
@@ -793,6 +811,7 @@ class Analysis(object):
         self._flank = params['flank']
         self._long = params['long']
         self._target_species = params['target_species']
+        self._augustus_parameters = params['augustus_parameters']
         self._augustus_config_path = params['augustus_config_path']
         self._tarzip = params['tarzip']
         self._dataset_creation_date = params['dataset_creation_date']
@@ -814,6 +833,7 @@ class Analysis(object):
         self._transcriptome_by_scaff = {}
         self._mode = None
         self._has_variants_file = False
+        self._contig_length = {}
 
     def cleanup(self):
         """
@@ -864,6 +884,8 @@ class Analysis(object):
         f = open(self._sequences)
         check = 0
         out = None
+        contig_len = 0
+        contig_id = None
         for i in f:
             if i.startswith('>'):
                 i = i.split()
@@ -872,13 +894,19 @@ class Analysis(object):
                     out = open('%s%s%s%s_.temp' % (self._tmp, i, self._abrev, self._random), 'w')
                     out.write('>%s\n' % i)
                     check = 1
+                    contig_id = i
                 else:
                     check = 0
             elif check == 1:
                 out.write(i)
+                if i != '\n':
+                    contig_len += len(i)
         f.close()
         if out:
             out.close()
+            # Keep track of the contig max lenght
+            #  Not used yet but might be useful
+            self._contig_length.update({contig_id: contig_len})
 
     @abstractmethod
     def _hmmer(self):
@@ -1040,6 +1068,10 @@ class Analysis(object):
         # Now run Augustus on each candidate region with its respective Block-profile
 
         _logger.info('Running Augustus prediction using %s as species:' % self._target_species)
+
+        if self._augustus_parameters:
+            _logger.info('Additional parameters for Augustus are %s: ' % self._augustus_parameters)
+
         augustus_log = '%saugustus_output/augustus.log' % self.mainout
         _logger.info('[augustus] Please find all logs related to Augustus here: %s' % augustus_log)
         if not os.path.exists('%saugustus_output/predicted_genes' % self.mainout):
@@ -1075,10 +1107,12 @@ class Analysis(object):
 
                 augustus_call = 'augustus --codingseq=1 --proteinprofile=%(clade)sprfl/%(busco_group)s.prfl ' \
                                 '--predictionStart=%(start_coord)s --predictionEnd=%(end_coord)s ' \
-                                '--species=%(species)s \'%(tmp)s%(scaffold)s\' > %(output)s 2>> %(augustus_log)s' % \
-                                {'clade': self._clade_path, 'species': self._target_species, 'busco_group': entry,
-                                 'start_coord': scaff_start, 'end_coord': scaff_end, 'tmp': self._tmp,
-                                 'scaffold': scaff, 'output': out_name, 'augustus_log': augustus_log}
+                                '--species=%(species)s %(augustus_parameters)s \'%(tmp)s%(scaffold)s\' > %(output)s ' \
+                                '2>> %(augustus_log)s' % \
+                                {'clade': self._clade_path, 'species': self._target_species,
+                                 'augustus_parameters': self._augustus_parameters,
+                                 'busco_group': entry, 'start_coord': scaff_start, 'end_coord': scaff_end,
+                                 'tmp': self._tmp, 'scaffold': scaff, 'output': out_name, 'augustus_log': augustus_log}
                 augustus_first_run_strings.append(augustus_call)  # list of call strings
 
         self._run_threads(augustus_first_run_strings, self._AugustusThreads)
@@ -1380,7 +1414,7 @@ class Analysis(object):
         count = 0
         group_name = group.split('.')[0]
         try:
-            group_index = int(group[-1])
+            group_index = int(group.split('.')[-1])
         except IndexError:
             group_index = '1'
             group += '.out.1'
@@ -1574,6 +1608,7 @@ class Analysis(object):
         out = open('%sfull_table_%s.tsv' % (self.mainout, self._abrev), 'w')
         self._write_output_header(out)
         self._write_full_table_header(out)
+        out_lines = []
 
         not_missing = []
         fragmented = []
@@ -1588,12 +1623,13 @@ class Analysis(object):
                 not_missing.append(entity)
 
                 if self._mode == 'proteins' or self._mode == 'tran':
-                    out.write('%s\tComplete\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
+                    out_lines.append('%s\tComplete\t%s\t%s\t%s\n' % (entity, self._reformats_seq_id(seq_id),
+                                                                     bit_score, seq_len))
                 elif self._mode == 'genome':
                     scaff = self._split_seq_id(seq_id)
-                    out.write(
+                    out_lines.append(
                         '%s\tComplete\t%s\t%s\t%s\t%s\t%s\n' %
-                        (entity, scaff['id'], scaff['start'], scaff['end'], bit_score, seq_len))
+                        (entity, self._reformats_seq_id(scaff['id']), scaff['start'], scaff['end'], bit_score, seq_len))
                     csc[entity] = seq_id
 
         for entity in the_mc:
@@ -1604,11 +1640,13 @@ class Analysis(object):
                 not_missing.append(entity)
 
                 if self._mode == 'proteins' or self._mode == 'tran':
-                    out.write('%s\tDuplicated\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
+                    out_lines.append('%s\tDuplicated\t%s\t%s\t%s\n' % (entity, self._reformats_seq_id(seq_id),
+                                                                       bit_score, seq_len))
                 elif self._mode == 'genome':
                     scaff = self._split_seq_id(seq_id)
-                    out.write(
-                        '%s\tDuplicated\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff['id'], scaff['start'], scaff['end'],
+                    out_lines.append(
+                        '%s\tDuplicated\t%s\t%s\t%s\t%s\t%s\n' % (entity, self._reformats_seq_id(scaff['id']),
+                                                                  scaff['start'], scaff['end'],
                                                                   bit_score, seq_len))
 
         for entity in the_fg:
@@ -1620,11 +1658,13 @@ class Analysis(object):
                 fragmented.append(entity)
 
                 if self._mode == 'proteins' or self._mode == 'tran':
-                    out.write('%s\tFragmented\t%s\t%s\t%s\n' % (entity, seq_id, bit_score, seq_len))
+                    out_lines.append('%s\tFragmented\t%s\t%s\t%s\n' % (entity, self._reformats_seq_id(seq_id),
+                                                                       bit_score, seq_len))
                 elif self._mode == 'genome':
                     scaff = self._split_seq_id(seq_id)
-                    out.write(
-                        '%s\tFragmented\t%s\t%s\t%s\t%s\t%s\n' % (entity, scaff['id'], scaff['start'], scaff['end'],
+                    out_lines.append(
+                        '%s\tFragmented\t%s\t%s\t%s\t%s\t%s\n' % (entity, self._reformats_seq_id(scaff['id']),
+                                                                  scaff['start'], scaff['end'],
                                                                   bit_score, seq_len))
 
         missing = []
@@ -1634,15 +1674,18 @@ class Analysis(object):
             if busco_group in not_missing:
                 pass
             else:
-                out.write('%s\tMissing\n' % busco_group)
-                miss_file.write('%s\n' % busco_group)
+                out_lines.append('%s\tMissing\n' % busco_group)
                 missing.append(busco_group)
 
         env.append(missing)
         env.append(fragmented)
         env.append(csc)
 
+        for line in sorted(missing):
+            miss_file.write('%s\n' % line)
         miss_file.close()
+        for line in sorted(out_lines):
+            out.write(line)
         out.close()
         return env
 
@@ -2131,6 +2174,7 @@ class GenomeAnalysis(Analysis):
                             elif contig_end > coords[busco_name][contig][1]:
                                 coords[busco_name][contig][2][1] = contig_end
                                 coords[busco_name][contig][2].append([busco_start, busco_end])
+
                 except (IndexError, ValueError):
                     pass
 
@@ -2231,8 +2275,7 @@ class GenomeAnalysis(Analysis):
             if entry.split('.')[-2] == 'faa':
                 count += 1
                 group_name = entry.split('.')[0]
-                group_index = entry[-1]
-
+                group_index = entry.split('.')[-1]
                 hmmer_call = ['hmmsearch',
                               '--domtblout', '%shmmer_output/%s.out.%s' % (self.mainout, group_name, group_index),
                               '-o', '%stemp_%s%s' % (self._tmp, self._abrev, self._random),
@@ -2249,6 +2292,17 @@ class TranscriptomeAnalysis(Analysis):
     """
     This class runs a BUSCO analysis on a transcriptome. It extends Analysis.
     """
+
+    @staticmethod
+    def _reformats_seq_id(seq_id):
+        """
+        This function reformats the sequence id to its original values
+        :param seq_id: the seq id to reformats
+        :type seq_id: str
+        :return: the reformatted seq_id
+        :rtype: str
+        """
+        return "_".join(seq_id.split('_')[:-1])
 
     def check_dataset(self):
         """
@@ -2599,7 +2653,7 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = '2.0 beta 3'
+VERSION = '2.0 beta 4'
 
 CONTACT = 'mailto:support@orthodb.org'
 
@@ -2624,6 +2678,11 @@ def _parse_args():
     :return: a dictionary having a key for each arguments
     :rtype: dict
     """
+
+    # small hack to get sub-parameters with dash and pass it to Augustus
+    for i, arg in enumerate(sys.argv):
+        if (arg[0] == '-' or arg[0] == '--') and (sys.argv[i - 1] == '-a' or sys.argv[i - 1] == '--augustus'):
+            sys.argv[i] = ' ' + arg
 
     parser = argparse.ArgumentParser(
         description='Welcome to BUSCO %s: the Benchmarking Universal Single-Copy Ortholog assessment tool.\n'
@@ -2673,6 +2732,12 @@ def _parse_args():
         '-sp', '--species', default='generic', required=False, dest='species', metavar='SPECIES',
         help='Name of existing Augustus species gene finding parameters. '
              'See Augustus documentation for available options.')
+
+    optional.add_argument('--augustus_parameters', required=False, default='', dest='augustus_parameters',
+                          help='Additional parameters for the fine-tuning of Augustus run. '
+                               'For the species, do not use this option\n'
+                               'Use single quotes as follow: \'--param1=1 --param2=2\', '
+                               'see Augustus documentation for available options.')
 
     optional.add_argument(
         '-t', '--tmp', metavar='PATH', required=False, dest='tmp', default='%s' % Analysis.TMP_DEFAULT,
@@ -2835,6 +2900,12 @@ def _define_parameters(args):
             region_limit = args['limit']
             _logger.info('Maximum number of regions limited to: %s' % region_limit)
 
+        # Fine tuning paramets for Augustus run
+        # Example -a '--translation_table=6'
+        if args['augustus_parameters']:
+            augustus_parameters = args['augustus_parameters']
+            _logger.info('The additional Augustus parameter(s) is/are: %s' % augustus_parameters)
+
     # Get the flank size
     # Minimum 5 Kbp and maximum 20 Kbp
     # Scaled as GenomeSize/50
@@ -2879,7 +2950,7 @@ def _define_parameters(args):
             "augustus_config_path": augustus_config_path, "tarzip": args['tarzip'],
             "region_limit": region_limit, "flank": flank, "long": args['long'],
             "dataset_creation_date": dataset_creation_date, "dataset_nb_species": dataset_nb_species,
-            "dataset_nb_buscos": dataset_nb_buscos
+            "dataset_nb_buscos": dataset_nb_buscos, "augustus_parameters": args['augustus_parameters']
             }
 
 
@@ -2918,6 +2989,8 @@ def _set_rerun_busco_command(params):
         _rerun_cmd += ' -e %s' % str(params['ev_cutoff'])
     if params['tarzip']:
         _rerun_cmd += ' -z'
+    if params['augustus_parameters']:
+        _rerun_cmd += ' --augustus_parameters \'%s\'' % params['augustus_parameters']
 
 
 def main(show_thread=False):
