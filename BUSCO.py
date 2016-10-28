@@ -457,9 +457,9 @@ class Analysis(object):
                 aas.remove(nucl)
             except KeyError:
                 pass
-        file = open(self._sequences)
+        nucl_file = open(self._sequences)
         n = 0
-        for line in file:
+        for line in nucl_file:
             if n > 10:
                 break
             n += 1
@@ -470,7 +470,7 @@ class Analysis(object):
                                       % (aa.upper(), aa.lower()))
                         file.close()
                         raise SystemExit
-        file.close()
+        nucl_file.close()
 
     def _check_protein(self):
         """
@@ -484,9 +484,9 @@ class Analysis(object):
         aas.remove('T')
         aas.remove('N')
         is_aa = False
-        file = open(self._sequences)
+        prot_file = open(self._sequences)
         n = 0
-        for line in file:
+        for line in prot_file:
             if n > 100:
                 break
             n += 1
@@ -495,7 +495,7 @@ class Analysis(object):
                     if aa.lower() in line or aa.upper() in line:
                         is_aa = True
                         break
-        file.close()
+        prot_file.close()
         if not is_aa:
             _logger.error('Please provide a protein file as input')
             raise SystemExit
@@ -1749,7 +1749,7 @@ class Analysis(object):
             _logger.warning('This is not an uncompleted run that can be restarted')
             self._restart = False
 
-        if os.path.exists(self.mainout) == False and self._abrev:
+        if not os.path.exists(self.mainout) and self._abrev:
             Analysis.p_open(['mkdir', self.mainout], 'bash', shell=False)
         else:
             if not self._force and not self._restart:
@@ -2653,7 +2653,7 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = '2.0 beta 4'
+VERSION = '2.0'
 
 CONTACT = 'mailto:support@orthodb.org'
 
@@ -2735,7 +2735,7 @@ def _parse_args():
 
     optional.add_argument('--augustus_parameters', required=False, default='', dest='augustus_parameters',
                           help='Additional parameters for the fine-tuning of Augustus run. '
-                               'For the species, do not use this option\n'
+                               'For the species, do not use this option.\n'
                                'Use single quotes as follow: \'--param1=1 --param2=2\', '
                                'see Augustus documentation for available options.')
 
