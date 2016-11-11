@@ -2729,7 +2729,7 @@ def _parse_args():
         help='Restart an uncompleted run. Not available for the protein mode')
 
     optional.add_argument(
-        '-sp', '--species', default='generic', required=False, dest='species', metavar='SPECIES',
+        '-sp', '--species', required=False, dest='species', metavar='SPECIES',
         help='Name of existing Augustus species gene finding parameters. '
              'See Augustus documentation for available options.')
 
@@ -2847,8 +2847,7 @@ def _define_parameters(args):
 
     # Use "generic" as the Augustus species unless user has specified the desired species metaparameters using the
     #  "-sp species" option
-    if args['species'] == 'generic':
-        # in this case, the generic species is fetch in the dataset configuration
+    if not args['species']:
         if not target_species:  # 1.x datasets backward compatibility
             if clade_name.startswith(('arthrop', 'examp')):
                 target_species = 'fly'
@@ -2983,7 +2982,7 @@ def _set_rerun_busco_command(params):
         _rerun_cmd += ' --limit %s' % str(params['region_limit'])
     if params['tmp'] != './tmp':
         _rerun_cmd += ' -t %s' % params['tmp']
-    if params['target_species'] != Analysis.SPECIES_DEFAULT:
+    if params['target_species']:
         _rerun_cmd += ' -sp %s' % params['target_species']
     if params['ev_cutoff'] != Analysis.EVALUE_DEFAULT:
         _rerun_cmd += ' -e %s' % str(params['ev_cutoff'])
