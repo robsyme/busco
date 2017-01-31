@@ -7,7 +7,7 @@
 .. moduleauthor:: Robert M. Waterhouse <robert.waterhouse@unige.ch>
 .. moduleauthor:: Mathieu Seppey <mathieu.seppey@unige.ch>
 .. versionadded:: 1.0
-.. versionchanged:: 2.0
+.. versionchanged:: 2.0.1
 
 BUSCO - Benchmarking Universal Single-Copy Orthologs.
 
@@ -981,8 +981,13 @@ class Analysis(object):
         try:
             if "processed" not in open('%sblast_output/tblastn_%s%s.tsv' % (self.mainout, self._abrev, output_suffix),
                                        'r').readlines()[-1]:
-                _logger.warning('tblastn might have ended prematurely (the result file lacks the expected final line), '
-                                'which could produce incomplete results in the next steps !')
+                _logger.error('tblastn has ended prematurely (the result file lacks the expected final line), '
+                              'which will produce incomplete results in the next steps ! '
+                              'This problem likely appeared in blast+ 2.4 and seems not fully fixed in 2.6. '
+                              'It happens only when using multiple cores. You can use a single core (-c 1) or '
+                              'downgrade to blast+ 2.2.x, a safe choice regarding this issue. '
+                              'See blast+ documentation for more information.')
+                raise SystemExit
         except IndexError:
                 pass  # if the tblastn result file is empty, for example in phase 2 if 100% was found in phase 1
 
@@ -1199,11 +1204,13 @@ class Analysis(object):
             Analysis.p_open(['new_species.pl --species=BUSCO_%s%s  1>>%s'
                             ' 2>&1'
                              % (self._abrev, self._random, augustus_log)], 'new_species.pl', shell=True)
-            
-        Analysis.p_open(['cat %saugustus_output/gb/*.gb > %saugustus_output/training_set_%s.txt'
-                         % (self.mainout, self.mainout, self._abrev)],
-                        'bash',
-                        shell=True)
+
+        Analysis.p_open(
+            ['find %saugustus_output/gb/ -type f -name "*.gb" -exec cat {} \; > %saugustus_output/training_set_%s.txt'
+             % (self.mainout, self.mainout, self._abrev)],
+            'bash',
+            shell=True)
+        
         # train on new training set (complete single copy buscos)
         Analysis.p_open(['etraining --species=BUSCO_%s%s %saugustus_output/training_set_%s.txt 1>>%s 2>&1' %
                         (self._abrev, self._random, self.mainout, self._abrev, augustus_log)], 'augustus etraining',
@@ -2653,7 +2660,7 @@ class GeneSetAnalysis(Analysis):
 
 # end of classes definition, now module code
 
-VERSION = '2.0'
+VERSION = '2.0.1'
 
 CONTACT = 'mailto:support@orthodb.org'
 
