@@ -2,11 +2,11 @@
 # Using native and syntenically mapped cDNA alignments to improve de novo gene finding
 # Bioinformatics 24: 637-644, doi 10.1093/bioinformatics/btn013
 # No extrinsic information on sequences given.
-# Initialising the parameters ...
+# Initialising the parameters using config directory /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/ ...
 # Using protein profile unknown
 # --[0..111]--> unknown_A (17) <--[0..101]--
-# fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
+# fly version. Using default transition matrix.
+# Looks like ./tmp/sampleSAMPLE_1279401836_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10482, name = sample) -----
@@ -108,6 +108,7 @@ sample	AUGUSTUS	protein_match	30543	30588	8.96	-	0	target "unknown_A[1..16]"; ta
 # protein sequence = [MSRNLFLSITNLFRNLESLFLPHGGHPPALALAGFQHDHSHRSSQEFSLKQLIGDGMLWAVPKHRRSVEKRLKRKFGY
 # PEYNWKPLREKRNIRSCLQCGHDHEMGVLCPFCYQKVLKETELMQSKIQETLGLDPVDKEVIVLYEGEKAEQSSDELKNKRIVEMKKPRPMWFTKNLL
 # QKSTQQLSETKEVKPSDLA]
+# sequence of block unknown_A    93 [SCLQCGHDHEMGVLCPF] 110
 # end gene g3
 ###
 # start gene g4
@@ -127,4 +128,4 @@ sample	AUGUSTUS	tts	32490	32490	.	+	.	transcript_id "g4.t1"; gene_id "g4";
 # end gene g4
 ###
 # command line:
-# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_1.prfl --predictionStart=25227 --predictionEnd=35708 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp
+# /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/bin/augustus --codingseq=1 --proteinprofile=./sample_data/example/prfl/BUSCO_1.prfl --predictionStart=25227  --predictionEnd=35708  --species=fly ./tmp/sampleSAMPLE_1279401836_.temp

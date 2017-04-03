@@ -1,22 +1,26 @@
 #!/usr/bin/env python
+# coding: utf-8
 """
-.. module:: BUSCO_plot
+
+.. module:: generate_plot
    :synopsis: This module produces a graphic summary for BUSCO runs based on short summary files
-.. moduleauthor:: Mathieu Seppey <mathieu.seppey@unige.ch>
-.. versionadded:: 2.0
-.. versionchanged:: 2.0
+.. versionadded:: 2.0.0
+.. versionchanged:: 3.0.0
 
  This module produces a graphic summary for BUSCO runs based on short summary files
 
-(``python BUSCO_plot.py -h`` and user guide for details on how to do it)
+(``python generate_plot.py -h`` and user guide for details on how to do it)
 
-Place the short summary files of all BUSCO runs you would like to see on the figure in the ``plot_data`` folder,
-located at the BUSCO root. Keep the file named as follow: ``short_summary_label.txt``, label being used in the plot
+Place the short summary files of all BUSCO runs you would like to see on the figure a single folder.
+Keep the file named as follow: ``short_summary_label.txt``, 'label' being used in the plot as species name
 
-This tool produces the R code of the figure and uses ggplot2. If your system seems able to run R, this script
+This tool produces the R code of the figure and uses ggplot2. If your system is able to run R, this script
 automatically runs it.
 
-You can find both the resulting R script for customisation and the figure if produced in the ``plot_data`` folder.
+You can find both the resulting R script for customisation and the figure in the working directory.
+
+Copyright (c) 2016-2017, Evgeny Zdobnov (ez@ezlab.org)
+Licensed under the MIT license. See LICENSE.md file.
 
 """
 
@@ -28,11 +32,10 @@ import argparse
 import subprocess
 from argparse import RawTextHelpFormatter
 import logging
-try:
-    import BUSCO
-except ImportError:
-    print('ERROR:%s\tImpossible to locate the BUSCO main file (BUSCO.py) in the current folder' % __file__)
-    raise SystemExit
+from pipebricks.PipeLogger import PipeLogger
+from pipebricks.Toolset import Tool
+from pipebricks.Toolset import ToolException
+from busco.BuscoConfig import BuscoConfig
 
 #: working directory
 _plot_dir = ''
@@ -43,27 +46,16 @@ _r_file = 'busco_figure.R'
 _no_r = False
 
 #: Get an instance of _logger for keeping track of events
-logging.setLoggerClass(BUSCO.BUSCOLogger)
-_logger = logging.getLogger(__file__.split("/")[-1])
+_logger = PipeLogger.get_logger(__name__)
 
 RCODE = '######################################\n'\
         '#\n'\
         '# BUSCO summary figure\n'\
-        '# @author Mathieu Seppey <mathieu.seppey@unige.ch>\n'\
-        '# @version 2.0\n'\
-        '# @since BUSCO 2.0\n'\
-        '# \n'\
-        '# Copyright (C) 2016 E. Zdobnov lab\n'\
-        '# \n'\
-        '# BUSCO is free software: you can redistribute it and/or modify\n'\
-        '# it under the terms of the GNU General Public License as published by\n'\
-        '# the Free Software Foundation, either version 3 of the License, or\n'\
-        '# (at your option) any later version. See <http://www.gnu.org/licenses/>\n'\
-        '#  \n'\
-        '# BUSCO is distributed in the hope that it will be useful,\n'\
-        '# but WITHOUT ANY WARRANTY; without even the implied warranty of\n'\
-        '# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n'\
-        '# GNU General Public License for more details.\n'\
+        '# @version 3.0.0\n'\
+        '# @since BUSCO 2.0.0\n'\
+        '# \n' \
+        '# Copyright (c) 2016-2017, Evgeny Zdobnov (ez@ezlab.org)\n'\
+        '# Licensed under the MIT license. See LICENSE.md file.\n'\
         '#\n'\
         '######################################\n'\
         '\n'\
@@ -219,7 +211,21 @@ def _run_r_code():
         return None  # do not run the code, but no need to stop the execution
 
     # run R
-    BUSCO.Analysis.p_open(['Rscript', '%s%s' % (_plot_dir, _r_file)], _r_file)
+    config = BuscoConfig('%s/../config/config.ini' % os.path.dirname(os.path.realpath(__file__)), {}, False)
+    try:
+        if Tool.check_tool_available('Rscript', config):
+            r_script = Tool('Rscript', config)
+            r_script_job = r_script.create_job()
+            r_script_job.add_parameter('%s%s' % (_plot_dir, _r_file))
+            r_script.run_jobs(1)
+        else:
+            _logger.error(
+                '\"Rscript\" is not accessible, please '
+                'add or modify its path in the config file')
+            raise SystemExit
+    except ToolException as e:
+        _logger.error(e)
+        raise SystemExit
 
 
 def _set_args():
@@ -232,7 +238,7 @@ def _set_args():
                                                  'your working directory, in which the generated plot files'
                                                  ' will be written'
                                                  '\nSee also the user guide'
-                                                 ' for additional information' % BUSCO.VERSION,
+                                                 ' for additional information' % BuscoConfig.VERSION,
                                      usage='python BUSCO_plot.py -wd [WORKING_DIRECTORY] [OTHER OPTIONS]',
                                      formatter_class=RawTextHelpFormatter, add_help=False)
 
@@ -248,7 +254,7 @@ def _set_args():
     optional.add_argument(
         '-q', '--quiet', help='Disable the info logs, displays only errors', action="store_true", dest='quiet')
     optional.add_argument('-v', '--version', action='version', help="Show this version and exit",
-                          version='BUSCO %s' % BUSCO.VERSION)
+                          version='BUSCO %s' % BuscoConfig.VERSION)
     optional.add_argument('-h', '--help', action="help", help="Show this help message and exit")
     args = vars(parser.parse_args())
     if args["quiet"]:
@@ -309,7 +315,6 @@ def main():
 
     _set_args()  # Fetch the params provided by the user
     start_time = time.time()
-    _logger.add_blank_line()
 
     try:
 
@@ -328,16 +333,11 @@ def main():
 
         # run R code
         if not _no_r:
-            if BUSCO.Analysis.cmd_exists('Rscript'):
-                _logger.info('Run the R code ...')
-                _run_r_code()
-            else:
-                _logger.warning('Impossible to run R. Rscript command is not accessible. '
-                                'Please check your R installation or use --no_r to avoid this message')
+            _logger.info('Run the R code ...')
+            _run_r_code()
         else:
             _logger.info('You chose not to run R')
 
-        _logger.add_blank_line()
         if not _logger.has_warning():
             _logger.info('Plot generation done. Total running time: %s seconds' % str(time.time() - start_time))
         else:
@@ -346,31 +346,28 @@ def main():
         _logger.info('Results written in %s\n' % _plot_dir)
 
     except SystemExit:
-        _logger.add_blank_line()
         _logger.error('Plot generation failed !')
         _logger.info(
             'Check the logs, read the user guide, if you still need technical support, then please contact %s\n'
-            % BUSCO.CONTACT)
+            % BuscoConfig.CONTACT)
         raise SystemExit
 
     except KeyboardInterrupt:
-        _logger.add_blank_line()
         _logger.error('A signal was sent to kill the process')
         _logger.error('Plot generation failed !')
         _logger.info(
             'Check the logs, read the user guide, if you still need technical support, then please contact %s\n'
-            % BUSCO.CONTACT)
+            % BuscoConfig.CONTACT)
         raise SystemExit
 
     except BaseException:
-        _logger.add_blank_line()
         exc_type, exc_value, exc_traceback = sys.exc_info()
         _logger.critical('Unhandled exception occurred: %s' % repr(traceback.format_exception(exc_type, exc_value,
                                                                                               exc_traceback)))
         _logger.error('Plot generation failed !\n')
         _logger.info(
             'Check the logs, read the user guide, if you still need technical support, then please contact %s\n'
-            % BUSCO.CONTACT)
+            % BuscoConfig.CONTACT)
         raise SystemExit
 
 

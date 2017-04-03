@@ -1,5 +1,11 @@
 #exon model parameters
 # begin of content independent part
+# start codon probabilities
+[STARTCODONS]
+# number of start codons:
+1
+# start codons and their probabilities
+ATG	1
 
 # Length distributions
 [LENGTH]

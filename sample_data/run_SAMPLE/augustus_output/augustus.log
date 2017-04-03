@@ -1,15 +1,15 @@
+Warning: Block unknown_C is not significant enough, removed from profile.
 Warning: Block unknown_D is not significant enough, removed from profile.
 Warning: Block unknown_G is not significant enough, removed from profile.
 Warning: Block unknown_A is not significant enough, removed from profile.
 Warning: Block unknown_B is not significant enough, removed from profile.
-Warning: Block unknown_C is not significant enough, removed from profile.
 Will create parameters for a EUKARYOTIC species!
-creating directory /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_1214242381/ ...
-creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_1214242381/BUSCO_SAMPLE_1214242381_parameters.cfg ...
-creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_1214242381/BUSCO_SAMPLE_1214242381_weightmatrix.txt ...
-creating /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_1214242381/BUSCO_SAMPLE_1214242381_metapars.cfg ...
-The necessary files for training BUSCO_SAMPLE_1214242381 have been created.
-Now, either run etraining or optimize_parameters.pl with --species=BUSCO_SAMPLE_1214242381.
+creating directory /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/species/BUSCO_SAMPLE_1279401836/ ...
+creating /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/species/BUSCO_SAMPLE_1279401836/BUSCO_SAMPLE_1279401836_parameters.cfg ...
+creating /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/species/BUSCO_SAMPLE_1279401836/BUSCO_SAMPLE_1279401836_weightmatrix.txt ...
+creating /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/species/BUSCO_SAMPLE_1279401836/BUSCO_SAMPLE_1279401836_metapars.cfg ...
+The necessary files for training BUSCO_SAMPLE_1279401836 have been created.
+Now, either run etraining or optimize_parameters.pl with --species=BUSCO_SAMPLE_1279401836.
 etraining quickly estimates the parameters from a file with training genes.
 optimize_augustus.pl alternates running etraining and augustus to find optimal metaparameters.
 
@@ -29,7 +29,8 @@ Quantiles of the GC contents in the training set:
 HMM-training the parameters...
 i= 0 bc= (0.237, 0.263, 0.263, 0.237)
  ** building model for exons *EXON*
-tis bin boundaries
+start codon frequencies: ATG(8)
+# admissible start codons and their probabilities: ATG(1), CTG(0), TTG(0)
  number of bases in the reading frames: 2806 2814 2814
 --- frame = 0 ---    minPatSum = 233
 --- frame = 1 ---    minPatSum = 233
@@ -56,4 +57,4 @@ taa:    3 (0.375)
 tga:    1 (0.125)
 end *EXON*
 Storing parameters to file...
-Writing exon model parameters [1] to file /home/xxx/augustus-3.2.2/config/species/BUSCO_SAMPLE_1214242381/BUSCO_SAMPLE_1214242381_exon_probs.pbl.
+Writing exon model parameters [1] to file /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/species/BUSCO_SAMPLE_1279401836/BUSCO_SAMPLE_1279401836_exon_probs.pbl.

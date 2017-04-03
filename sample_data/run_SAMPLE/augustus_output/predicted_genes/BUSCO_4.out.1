@@ -2,11 +2,11 @@
 # Using native and syntenically mapped cDNA alignments to improve de novo gene finding
 # Bioinformatics 24: 637-644, doi 10.1093/bioinformatics/btn013
 # No extrinsic information on sequences given.
-# Initialising the parameters ...
+# Initialising the parameters using config directory /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/ ...
 # Using protein profile unknown
 # --[0..26]--> unknown_A (25) <--[4..13]--> unknown_B (16) <--[40..496]--
-# fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
+# fly version. Using default transition matrix.
+# Looks like ./tmp/sampleSAMPLE_1279401836_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10546, name = sample) -----
@@ -19,12 +19,12 @@ sample	AUGUSTUS	gene	66254	68675	0.1	+	.	g1
 sample	AUGUSTUS	transcript	66254	68675	0.1	+	.	g1.t1
 sample	AUGUSTUS	exon	66254	66359	.	+	.	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	start_codon	66312	66314	.	+	0	transcript_id "g1.t1"; gene_id "g1";
-sample	AUGUSTUS	intron	66360	67337	0.76	+	.	transcript_id "g1.t1"; gene_id "g1";
-sample	AUGUSTUS	intron	67543	68133	0.62	+	.	transcript_id "g1.t1"; gene_id "g1";
-sample	AUGUSTUS	CDS	66312	66359	0.76	+	0	transcript_id "g1.t1"; gene_id "g1";
-sample	AUGUSTUS	CDS	67338	67542	0.75	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	66360	67337	0.96	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	intron	67543	68133	0.77	+	.	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	66312	66359	0.96	+	0	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	67338	67542	0.95	+	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	exon	67338	67542	.	+	.	transcript_id "g1.t1"; gene_id "g1";
-sample	AUGUSTUS	CDS	68134	68297	0.7	+	2	transcript_id "g1.t1"; gene_id "g1";
+sample	AUGUSTUS	CDS	68134	68297	0.86	+	2	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	exon	68134	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	stop_codon	68295	68297	.	+	0	transcript_id "g1.t1"; gene_id "g1";
 sample	AUGUSTUS	tts	68675	68675	.	+	.	transcript_id "g1.t1"; gene_id "g1";
@@ -64,6 +64,8 @@ sample	AUGUSTUS	protein_match	69572	69619	7.89	+	0	target "unknown_B[1..16]"; ta
 # RRKGEEAVEISTSGFSARKLKKAKEQHASDGKTTYDNFLQTSLLTQGGNEVETSERIKVEEIEVAKVAVLTDEELFKACGGRTAHKGARHGLKLSGKI
 # ARLEQQEREMLEKLQSKLKTTPETTLVPKSGKLIEETQHKVADSVDCSVEQATKPKKKKKSRTEESVEEIAPAQLEEPIKSKKKKKDKAEKAAKEYST
 # HQAQDDPVQIKRRKNKTGKLEEEVQDVTEVEEAVKIKKKDKRQQGVEATEALSIETDEHVKSKKKRKTEDSSEETETPTKTKKKRKNKELV]
+# sequence of block unknown_A    16 [DGLGKNNTGIAAPLKASLKFDNAGL] 41
+# sequence of block unknown_B    49 [NDHWWERCFNEAASNV] 65
 # end gene g2
 ###
 # start gene g3
@@ -145,4 +147,4 @@ sample	AUGUSTUS	tts	74808	74808	.	+	.	transcript_id "g4.t1"; gene_id "g4";
 # end gene g4
 ###
 # command line:
-# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_4.prfl --predictionStart=64425 --predictionEnd=74970 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp
+# /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/bin/augustus --codingseq=1 --proteinprofile=./sample_data/example/prfl/BUSCO_4.prfl --predictionStart=64425  --predictionEnd=74970  --species=fly ./tmp/sampleSAMPLE_1279401836_.temp

@@ -1,8 +1,8 @@
-# BUSCO version is: 2.0 beta 3 
+# BUSCO version is: 3.0.0 
 # The lineage dataset is: sample dataset BUSCO 2.0 (Creation date: 07.10.2016, number of species: 23, number of BUSCOs: 10)
-# To reproduce this run: python ./BUSCO.py -i sample_data/target.fa -o SAMPLE -l sample_data/example/ -m genome -c 1
+# To reproduce this run: python scripts/run_BUSCO.py -i ./sample_data/target.fa -o SAMPLE -l ./sample_data/example/ -m genome -c 1 -sp fly
 #
-# Summarized benchmarking in BUSCO notation for file sample_data/target.fa
+# Summarized benchmarking in BUSCO notation for file ./sample_data/target.fa
 # BUSCO was run in mode: genome
 
 	C:80.0%[S:80.0%,D:0.0%],F:0.0%,M:20.0%,n:10

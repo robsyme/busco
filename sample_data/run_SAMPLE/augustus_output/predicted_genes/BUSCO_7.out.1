@@ -2,11 +2,11 @@
 # Using native and syntenically mapped cDNA alignments to improve de novo gene finding
 # Bioinformatics 24: 637-644, doi 10.1093/bioinformatics/btn013
 # No extrinsic information on sequences given.
-# Initialising the parameters ...
+# Initialising the parameters using config directory /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/config/ ...
 # Using protein profile unknown
 # --[0..436]--> unknown_A (160) <--[0..3]--> unknown_B (26) <--[2..24]--> unknown_C (14) <--[4..160]--
-# fly version. Use default transition matrix.
-# Looks like ./tmp/sampleSAMPLE_1214242381_.temp is in fasta format.
+# fly version. Using default transition matrix.
+# Looks like ./tmp/sampleSAMPLE_1279401836_.temp is in fasta format.
 # We have hints for 0 sequences and for 0 of the sequences in the input set.
 #
 # ----- prediction on sequence number 1 (length = 10717, name = sample) -----
@@ -56,7 +56,10 @@ sample	AUGUSTUS	protein_match	169093	169134	2	+	0	target "unknown_C[1..14]"; tar
 # protein sequence = [MARLYDSRTTIFSPEGRLYQVEYAMEAASQSNTCLGILAKNGVILATERSVDKLLDSSIPAPRICRLNEDAACCATGN
 # KADGNVLTTELRLIAQQYVSTYGEMIPCEQLVTNLCDIKQAYTQYGGKRPFGVSFLYMGWDCRFGFQLYQSDPSGNYSGWKATCIGRKSGAAMEMLQK
 # ELFSKGYASPSLEEAKDVAIKVMGMTLDRDSLTPAKLEMAVLQRFYNTTIFHILEKIEVHNLIQKHNILQFQIARRKY]
+# sequence of block unknown_A    23 [AMEAASQSNTCLGILAKNGVILATERSVDKLLDSSIPAPRICRLNEDAACCATGNKADGNVLTTELRLIAQQYVSTYGEMIPCEQLVTNLCDIKQAYTQYGGKRPFGVSFLYMGWDCRFGFQLYQSDPSGNYSGWKATCIGRKSGAAMEMLQKELFSKGY] 183
+# sequence of block unknown_B   186 [SLEEAKDVAIKVMGMTLDRDSLTPAK] 212
+# sequence of block unknown_C   233 [EVHNLIQKHNILQF] 247
 # end gene g2
 ###
 # command line:
-# augustus --codingseq=1 --proteinprofile=sample_data/example/prfl/BUSCO_7.prfl --predictionStart=163394 --predictionEnd=174110 --species=fly ./tmp/sampleSAMPLE_1214242381_.temp
+# /home/osboxes/BUSCOVM/augustus/augustus-3.2.2/bin/augustus --codingseq=1 --proteinprofile=./sample_data/example/prfl/BUSCO_7.prfl --predictionStart=163394  --predictionEnd=174110  --species=fly ./tmp/sampleSAMPLE_1279401836_.temp
