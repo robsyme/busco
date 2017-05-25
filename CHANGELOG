@@ -1,3 +1,8 @@
+3.0.1
+- Add the environment variable BUSCO_CONFIG_FILE
+- Add the –blast_single_core option
+- Incompatibilities between plotting tool and config fixed
+
 3.0.0
 - Major refactoring of the code
 - Introduce setup.py

@@ -4,7 +4,7 @@
 .. module:: BuscoConfig
    :synopsis: Load and combine all parameters provided to BUSCO through config file, dataset and command line
 .. versionadded:: 3.0.0
-.. versionchanged:: 3.0.0
+.. versionchanged:: 3.0.1
 
 Copyright (c) 2016-2017, Evgeny Zdobnov (ez@ezlab.org)
 Licensed under the MIT license. See LICENSE.md file.
@@ -53,20 +53,21 @@ class BuscoConfig(PipeConfig):
                            'dataset_creation_date': 'N/A',
                            'dataset_nb_buscos': 'N/A', 'dataset_nb_species': 'N/A', 'augustus_parameters': '',
                            'long': False, 'restart': False, 'quiet': False, 'debug': False, 'force': False,
-                           'tarzip': False}
+                           'tarzip': False, 'blast_single_core': False}
 
     MANDATORY_USER_PROVIDED_PARAMS = ['in', 'out', 'lineage_path', 'mode']
 
     _logger = PipeLogger.get_logger(__name__)
 
-    def __init__(self, conf_file, args, check_mandatory=True):
+    def __init__(self, conf_file, args, checks=True):
         """
         :param conf_file: a path to a config.ini file
         :type conf_file: str
         :param args: key and values matching BUSCO parameters to override config.ini values
         :type args: dict
-        :param check_mandatory: whether to require the mandatory parameters used in a main BUSCO analysis. Default True
-        :type check_mandatory: bool
+        :param checks: whether to proceed to the mandatory parameters + file dependencies checks,
+         used in a main BUSCO analysis. Default True
+        :type checks: bool
         """
         try:
             super(BuscoConfig, self).__init__(conf_file)
@@ -96,7 +97,7 @@ class BuscoConfig(PipeConfig):
                     self.set('busco', key, 'True')
 
             # Validate that all keys that are mandatory are there
-            if check_mandatory:
+            if checks:
                 for param in BuscoConfig.MANDATORY_USER_PROVIDED_PARAMS:
                     try:
                         self.get('busco', param)
@@ -122,17 +123,19 @@ class BuscoConfig(PipeConfig):
                     elif l.split("=")[0] == "species":
                         try:
                             self.get('busco', 'species')
-                            BuscoConfig._logger.warning('An augustus species is mentionned in the config file, '
-                                                        'dataset default species (%s) will be ignored'
-                                                        % l.strip().split("=")[1])
+                            if checks:
+                                BuscoConfig._logger.warning('An augustus species is mentioned in the config file, '
+                                                            'dataset default species (%s) will be ignored'
+                                                            % l.strip().split("=")[1])
                         except NoOptionError:
                             self.set('busco', 'species', l.strip().split("=")[1])
                     elif l.split("=")[0] == "domain":
                         try:
                             self.get('busco', 'domain')
-                            BuscoConfig._logger.warning('A domain for augustus training is mentionned in the config '
-                                                        'file, dataset default domain (%s) will be ignored'
-                                                        % l.strip().split("=")[1])
+                            if checks:
+                                BuscoConfig._logger.warning('A domain for augustus training is mentioned in the config '
+                                                            'file, dataset default domain (%s) will be ignored'
+                                                            % l.strip().split("=")[1])
                         except NoOptionError:
                             self.set('busco', 'domain', l.strip().split("=")[1])
                         domain = l.strip().split("=")[1]
@@ -142,15 +145,17 @@ class BuscoConfig(PipeConfig):
                         self.set('busco', 'dataset_nb_buscos', l.strip().split("=")[1])
                     elif l.split("=")[0] == "number_of_species":
                         self.set('busco', 'dataset_nb_species', l.strip().split("=")[1])
-                if domain != 'prokaryota' and domain != 'eukaryota':
+                if checks and domain != 'prokaryota' and domain != 'eukaryota':
                     BuscoConfig._logger.error(
                         'Corrupted dataset.cfg file: domain is %s, should be eukaryota or prokaryota' % domain)
                     raise SystemExit
             except IOError:
-                BuscoConfig._logger.warning("The dataset you provided does not contain the file dataset.cfg, "
-                                            "likely because it is an old version. Default species (%s, %s) will be "
-                                            "used as augustus species" % (BuscoConfig.DEFAULT_ARGS_VALUES['species'],
-                                                                          BuscoConfig.DEFAULT_ARGS_VALUES['domain']))
+                if checks:
+                    BuscoConfig._logger.warning("The dataset you provided does not contain the file dataset.cfg, "
+                                                "likely because it is an old version. Default species (%s, %s) will be "
+                                                "used as augustus species"
+                                                % (BuscoConfig.DEFAULT_ARGS_VALUES['species'],
+                                                   BuscoConfig.DEFAULT_ARGS_VALUES['domain']))
 
             # Fill the other with default values if not present
             for param in list(BuscoConfig.DEFAULT_ARGS_VALUES.keys()):
@@ -165,34 +170,39 @@ class BuscoConfig(PipeConfig):
                     self.set('busco', item[0], BuscoConfig.nice_path(item[1]))
 
             # And check that in and lineage path and file actually exists
-            for item in self.items('busco'):
-                if item[0] == 'lineage_path' or item[0] == 'in':
-                    BuscoConfig.check_path_exist(item[1])
+            if checks:
+                for item in self.items('busco'):
+                    if item[0] == 'lineage_path' or item[0] == 'in':
+                        BuscoConfig.check_path_exist(item[1])
 
             # Prevent the user form using "~" as home
-            for item in self.items('busco'):
-                if item[0].endswith('_path'):
-                    if item[1].startswith('~'):
-                        BuscoConfig._logger.error('Do not use the \'~\' character as home in the config file, '
-                                                  'use the full path instead')
-                        raise SystemExit
+            if checks:
+                for item in self.items('busco'):
+                    if item[0].endswith('_path'):
+                        if item[1].startswith('~'):
+                            BuscoConfig._logger.error('Do not use the \'~\' character as home in the config file, '
+                                                      'use the full path instead')
+                            raise SystemExit
 
             # Prevent the user form using "/" in out name
-            if '/' in self.get('busco', 'out'):
-                BuscoConfig._logger.error('Please do not provide a full path in --out parameter, no slash.'
-                                          ' Use out_path in the config.ini file to specify the full path.')
-                raise SystemExit
+            if checks:
+                if '/' in self.get('busco', 'out'):
+                    BuscoConfig._logger.error('Please do not provide a full path in --out parameter, no slash.'
+                                              ' Use out_path in the config.ini file to specify the full path.')
+                    raise SystemExit
 
             # Check the value of limit
-            if self.getint('busco', 'limit') == 0 or self.getint('busco', 'limit') > 20:
-                BuscoConfig._logger.error('Limit must be an integer between 1 and 20 (you have used: %s). '
-                                          'Note that this parameter is not needed by the protein mode.'
-                                          % self.getint('busco', 'limit'))
-                raise SystemExit
+            if checks:
+                if self.getint('busco', 'limit') == 0 or self.getint('busco', 'limit') > 20:
+                    BuscoConfig._logger.error('Limit must be an integer between 1 and 20 (you have used: %s). '
+                                              'Note that this parameter is not needed by the protein mode.'
+                                              % self.getint('busco', 'limit'))
+                    raise SystemExit
 
             # Warn if custom evalue
-            if self.getfloat('busco', 'evalue') != BuscoConfig.DEFAULT_ARGS_VALUES['evalue']:
-                BuscoConfig._logger.warning('You are using a custom e-value cutoff')
+            if checks:
+                if self.getfloat('busco', 'evalue') != BuscoConfig.DEFAULT_ARGS_VALUES['evalue']:
+                    BuscoConfig._logger.warning('You are using a custom e-value cutoff')
 
         except NoSectionError:
             BuscoConfig._logger.error('No section [busco] found in %s. Please make sure both the file and this section '

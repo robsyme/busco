@@ -4,7 +4,7 @@
 .. module:: BuscoAnalysis
    :synopsis: BuscoAnalysis implements general BUSCO analysis specifics
 .. versionadded:: 3.0.0
-.. versionchanged:: 3.0.0
+.. versionchanged:: 3.0.1
 
 Copyright (c) 2016-2017, Evgeny Zdobnov (ez@ezlab.org)
 Licensed under the MIT license. See LICENSE.md file.
@@ -83,6 +83,7 @@ class BuscoAnalysis(Analysis):
         self._long = config.getboolean('busco', 'long')
         self._restart = config.getboolean('busco', 'restart')
         self._cpus = config.getint('busco', 'cpu')
+        self._blast_single_core = config.getboolean('busco', 'blast_single_core')
         self._sequences = config.get('busco', 'in')
         self._lineage_path = config.get('busco', 'lineage_path')
         self._lineage_name = config.get('busco', 'clade_name')
@@ -180,7 +181,7 @@ class BuscoAnalysis(Analysis):
         elif mode == 'proteins' or mode == 'prot':
             return GeneSetAnalysis(config)
         else:
-            BuscoAnalysis._logger.error('Unknown mode, use genome, transcriptome, or proteins')
+            BuscoAnalysis._logger.error('Unknown mode %s, use genome, transcriptome, or proteins', mode)
             raise SystemExit
 
     #
@@ -864,7 +865,10 @@ class BuscoAnalysis(Analysis):
         tblastn_job.add_parameter('-evalue')
         tblastn_job.add_parameter(str(self._ev_cutoff))
         tblastn_job.add_parameter('-num_threads')
-        tblastn_job.add_parameter(str(self._cpus))
+        if not self._blast_single_core:
+            tblastn_job.add_parameter(str(self._cpus))
+        else:
+            tblastn_job.add_parameter('1')
         tblastn_job.add_parameter('-query')
         tblastn_job.add_parameter(query_file)
         tblastn_job.add_parameter('-db')

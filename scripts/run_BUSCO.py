@@ -4,7 +4,7 @@
 .. module:: run_BUSCO
    :synopsis: BUSCO - Benchmarking Universal Single-Copy Orthologs.
 .. versionadded:: 3.0.0
-.. versionchanged:: 3.0.0
+.. versionchanged:: 3.0.1
 
 This is the BUSCO main script.
 
@@ -119,6 +119,12 @@ def _parse_args():
                                                               'contain thousands of files',
         action="store_true")
 
+    optional.add_argument(
+        '--blast_single_core', dest='blast_single_core', required=False,
+        help='Force tblastn to run on a single core and ignore the --cpu argument for this step only. '
+             'Useful if inconsistencies when using multiple threads are noticed',
+        action="store_true")
+
     optional.add_argument('-v', '--version', action='version', help="Show this version and exit",
                           version='BUSCO %s' % BuscoConfig.VERSION)
 
@@ -137,7 +143,11 @@ def main():
     start_time = time.time()
     # 1) Load a busco config file that will figure out all the params from all sources
     # i.e. provided config file, dataset cfg, and user args
-    config = BuscoConfig('%s/../config/config.ini' % os.path.dirname(os.path.realpath(__file__)), _parse_args())
+    if os.environ.get('BUSCO_CONFIG_FILE') and os.access(os.environ.get('BUSCO_CONFIG_FILE'), os.R_OK):
+        config_file = os.environ.get('BUSCO_CONFIG_FILE')
+    else:
+        config_file = '%s/../config/config.ini' % os.path.dirname(os.path.realpath(__file__))
+    config = BuscoConfig(config_file, _parse_args())
     # Define a logger, the config is passed to tell the logger if you required the quiet mode
     logger = PipeLogger.get_logger(__name__, config)
 
@@ -151,7 +161,7 @@ def main():
             logger.info(
                 '****************** Start a BUSCO %s analysis, current time: %s **'
                 '****************' % (BuscoConfig.VERSION, time.strftime('%m/%d/%Y %H:%M:%S')))
-
+            logger.info('Configuration loaded from %s' % config_file)
             # 2) Load the analysis, this will check the dependencies and return the appropriate analysis object
             analysis = BuscoAnalysis.get_analysis(config)
 

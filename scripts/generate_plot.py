@@ -5,7 +5,7 @@
 .. module:: generate_plot
    :synopsis: This module produces a graphic summary for BUSCO runs based on short summary files
 .. versionadded:: 2.0.0
-.. versionchanged:: 3.0.0
+.. versionchanged:: 3.0.1
 
  This module produces a graphic summary for BUSCO runs based on short summary files
 
@@ -211,7 +211,10 @@ def _run_r_code():
         return None  # do not run the code, but no need to stop the execution
 
     # run R
-    config = BuscoConfig('%s/../config/config.ini' % os.path.dirname(os.path.realpath(__file__)), {}, False)
+    if os.environ.get('BUSCO_CONFIG_FILE') and os.access(os.environ.get('BUSCO_CONFIG_FILE'), os.R_OK):
+        config = BuscoConfig(os.environ.get('BUSCO_CONFIG_FILE'), {}, False)
+    else:
+        config = BuscoConfig('%s/../config/config.ini' % os.path.dirname(os.path.realpath(__file__)), {}, False)
     try:
         if Tool.check_tool_available('Rscript', config):
             r_script = Tool('Rscript', config)
@@ -299,7 +302,7 @@ def _load_data():
                 frag_pc = round(frag/float(total)*100, 1)
                 miss_pc = round(100 - comp_pc - dupl_pc - frag_pc, 1)
                 data['percentages'] += [comp_pc, dupl_pc, frag_pc, miss_pc]
-                _logger.info('Loaded %s sucessfully' % f)
+                _logger.info('Loaded %s successfully' % f)
             except IOError:
                 _logger.warning('Impossible to use the file %s' % f)
     if len(data['species']) == 0:
