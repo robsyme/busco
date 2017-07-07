@@ -1105,7 +1105,8 @@ class GenomeAnalysis(BuscoAnalysis):
         # check 'augustus' command availability
         if not Tool.check_tool_available('augustus', self._params, True):
             GenomeAnalysis._logger.error(
-                '\"augustus\" is not accessible, check its path in the config.ini file, and '
+                '\"augustus\" is not accessible, check its path in the config.ini file (do not include the commmand '
+                'in the path !), and '
                 'add it to your $PATH environmental variable (the entry in config.ini is not sufficient '
                 'for retraining to work properly)')
             raise SystemExit
@@ -1113,7 +1114,8 @@ class GenomeAnalysis(BuscoAnalysis):
         # check availability augustus - related commands
         if not Tool.check_tool_available('etraining', self._params, True):
             GenomeAnalysis._logger.error(
-                '\"etraining\" is not accessible, check its path in the config.ini file, and '
+                '\"etraining\" is not accessible, check its path in the config.ini file(do not include the commmand '
+                'in the path !), and '
                 'add it to your $PATH environmental variable (the entry in config.ini is not sufficient '
                 'for retraining to work properly)')
             raise SystemExit
@@ -1122,21 +1124,24 @@ class GenomeAnalysis(BuscoAnalysis):
             GenomeAnalysis._logger.error(
                 'Impossible to locate the required script gff2gbSmallDNA.pl. '
                 'Check that you properly declared the path to augustus scripts folder in your '
-                'config.ini file')
+                'config.ini file (do not include the script name '
+                'in the path !)')
             raise SystemExit
 
         if not Tool.check_tool_available('new_species.pl', self._params):
             GenomeAnalysis._logger.error(
                 'Impossible to locate the required script new_species.pl. '
                 'Check that you properly declared the path to augustus scripts folder in your '
-                'config.ini file')
+                'config.ini file (do not include the script name '
+                'in the path !)')
             raise SystemExit
 
         if not Tool.check_tool_available('optimize_augustus.pl', self._params):
             GenomeAnalysis._logger.error(
                 'Impossible to locate the required script optimize_augustus.pl. '
                 'Check that you properly declared the path to augustus scripts folder in your '
-                'config.ini file')
+                'config.ini file (do not include the script name '
+                'in the path !)')
             raise SystemExit
 
     def _check_file_dependencies(self):

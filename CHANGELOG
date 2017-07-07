@@ -1,3 +1,6 @@
+3.0.2
+- The ~ character can be used in the config.ini file
+
 3.0.1
 - Add the environment variable BUSCO_CONFIG_FILE
 - Add the –blast_single_core option

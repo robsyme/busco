@@ -210,21 +210,21 @@ class BuscoAnalysis(Analysis):
         if not Tool.check_tool_available('tblastn', self._params):
             BuscoAnalysis._logger.error(
                 '\"tblastn\" is not accessible, please '
-                'add or modify its path in the config file')
+                'add or modify its path in the config file. Do not include the commmand in the path !')
             raise SystemExit
 
         # check 'makeblastdb' command availability
         if not Tool.check_tool_available('makeblastdb', self._params):
             BuscoAnalysis._logger.error(
                 '\"makeblastdb\" is not accessible, please '
-                'add or modify its path in the config file')
+                'add or modify its path in the config file. Do not include the commmand in the path !')
             raise SystemExit
 
         # check 'hmmersearch' command availability
         if not Tool.check_tool_available('hmmsearch', self._params):
             BuscoAnalysis._logger.error(
                 '\"hmmsearch\" is not accessible, '
-                'add or modify its path in the config file')
+                'add or modify its path in the config file. Do not include the commmand in the path !')
             raise SystemExit
 
         # check hmm version

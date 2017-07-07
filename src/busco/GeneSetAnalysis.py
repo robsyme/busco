@@ -139,7 +139,8 @@ class GeneSetAnalysis(BuscoAnalysis):
         if not Tool.check_tool_available('hmmsearch', self._params):
             BuscoAnalysis._logger.error(
                 '\"hmmsearch\" is not accessible, '
-                'add or modify its path in the config file')
+                'add or modify its path in the config file. Do not include the command '
+                'in the path !')
             raise SystemExit
 
         # check version

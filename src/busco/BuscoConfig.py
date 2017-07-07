@@ -169,21 +169,19 @@ class BuscoConfig(PipeConfig):
                 if item[0].endswith('_path'):
                     self.set('busco', item[0], BuscoConfig.nice_path(item[1]))
 
+            # Convert the ~ into full home path
+            if checks:
+                for key in self.items():
+                    for item in self.items(key[0]):
+                        if item[0].endswith('_path') or item[0] == 'path' or item[0] == 'in':
+                            if item[1].startswith('~'):
+                                self.set(key[0], item[0], os.path.expanduser(item[1]))
+
             # And check that in and lineage path and file actually exists
             if checks:
                 for item in self.items('busco'):
                     if item[0] == 'lineage_path' or item[0] == 'in':
                         BuscoConfig.check_path_exist(item[1])
-
-            # Prevent the user form using "~" as home
-            if checks:
-                for item in self.items('busco'):
-                    if item[0].endswith('_path'):
-                        if item[1].startswith('~'):
-                            BuscoConfig._logger.error('Do not use the \'~\' character as home in the config file, '
-                                                      'use the full path instead')
-                            raise SystemExit
-
             # Prevent the user form using "/" in out name
             if checks:
                 if '/' in self.get('busco', 'out'):
