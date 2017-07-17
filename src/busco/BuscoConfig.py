@@ -171,11 +171,11 @@ class BuscoConfig(PipeConfig):
 
             # Convert the ~ into full home path
             if checks:
-                for key in self.items():
-                    for item in self.items(key[0]):
+                for key in self.sections():
+                    for item in self.items(key):
                         if item[0].endswith('_path') or item[0] == 'path' or item[0] == 'in':
                             if item[1].startswith('~'):
-                                self.set(key[0], item[0], os.path.expanduser(item[1]))
+                                self.set(key, item[0], os.path.expanduser(item[1]))
 
             # And check that in and lineage path and file actually exists
             if checks:
