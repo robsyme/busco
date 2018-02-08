@@ -10,7 +10,7 @@ useful for switching between configurations or in a multi-users environment.
 
 See also the user guide: BUSCO_v3_userguide.pdf
 
-You can download BUSCO datasets on http://busco.ezlab.org (currently unavailable, you can find datasets here: https://drive.google.com/drive/folders/1RgAq74fXV0EotUNScyThQSm7zrcAKptK?usp=sharing)
+You can download BUSCO datasets on https://drive.google.com/drive/folders/1RgAq74fXV0EotUNScyThQSm7zrcAKptK?usp=sharing (http://busco.ezlab.org is currently unavailable)
 
-Copyright (c) 2016-2017, Evgeny Zdobnov (ez@ezlab.org)
+Copyright (c) 2016-2018, Evgeny Zdobnov (ez@ezlab.org)
 Licensed under the MIT license. See LICENSE.md file.
