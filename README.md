@@ -12,6 +12,8 @@ See also the user guide: BUSCO_v3_userguide.pdf
 
 You can download BUSCO datasets on http://busco.ezlab.org
 
+You can find scripts to produce a phylogeny and a Dockerfile that contains BUSCO on https://gitlab.com/ezlab/busco_usecases
+
 **How to cite BUSCO**
 
 *BUSCO applications from quality assessments to gene prediction and phylogenomics.*
