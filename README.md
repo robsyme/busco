@@ -12,7 +12,7 @@ See also the user guide: BUSCO_v3_userguide.pdf
 
 You can download BUSCO datasets on http://busco.ezlab.org
 
-You can find scripts to produce a phylogeny and a Dockerfile that contains BUSCO on https://gitlab.com/ezlab/busco_usecases
+You can find scripts to produce a phylogeny and a Dockerfile that contains BUSCO on https://gitlab.com/ezlab/busco_usecases/tree/master/phylogenomics
 
 **How to cite BUSCO**
 
