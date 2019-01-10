@@ -1,3 +1,6 @@
+3.1.0
+- Add the additional script run_BUSCO_auto_lineage.sh
+
 3.0.2
 - The ~ character can be used in the config.ini file
 

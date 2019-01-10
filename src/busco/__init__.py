@@ -10,5 +10,5 @@ Licensed under the MIT license. See LICENSE.md file.
 
 """
 from ._version import __version__ as version
-__all__ = ['BuscoAnalysis', 'GeneSetAnalysis', 'GenomeAnalysis', 'TranscriptomeAnalysis', 'BuscoConfig']
+__all__ = ['BuscoAnalysis', 'GeneSetAnalysis', 'GenomeAnalysis', 'TranscriptomeAnalysis', 'BuscoConfig', 'BuscoPlacer']
 __version__ = version
