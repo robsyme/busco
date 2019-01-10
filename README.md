@@ -1,5 +1,7 @@
 **BUSCO - Benchmarking sets of Universal Single-Copy Orthologs.**
 
+> The new BUSCO datasets, **odb10**, will be available very soon. Stay tuned !
+
 To install, ``sudo python setup.py install`` or ``python setup.py install --user``
 
 To get help, ``python scripts/run_BUSCO.py -h`` and ``python scripts/generate_plot.py -h``
