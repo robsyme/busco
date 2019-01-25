@@ -285,8 +285,14 @@ done
 # run hmmalign
 hmmalign -o $WD/$folder/place_input.sto --mapali $WD/$clade/supermatrix.aln.faa $WD/$clade/refseqs.hmm $WD/$folder/marker_genes.fasta
 
+# create a temp forlder for storing pplacer --mmap-file (Note: it can take up to ~18Gb! for placing a bacterial species)
+mkdir $WD/$folder/mmap-file_tmp
+
 # run pplacer
-pplacer --out-dir $WD/$folder/ -t $WD/$clade/tree.nwk -s $WD/$clade/tree_metadata.txt $WD/$folder/place_input.sto
+pplacer --out-dir $WD/$folder/ --mmap-file $WD/$folder/mmap-file_tmp --keep-at-most 3 --groups 20 -t $WD/$clade/tree.nwk -s $WD/$clade/tree_metadata.txt $WD/$folder/place_input.sto
+
+# rm --mmap-file 
+rm -r $WD/$folder/mmap-file_tmp
 
 # run guppy
 guppy fat --out-dir $WD/$folder/ $WD/$folder/place_input.jplace
