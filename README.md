@@ -1,4 +1,4 @@
-**BUSCO - Benchmarking sets of Universal Single-Copy Orthologs.**
+**BUSCO - Benchmarking Universal Single-Copy Orthologs.**
 
 > The new BUSCO datasets, **odb10**, will be available very soon. Stay tuned !
 
