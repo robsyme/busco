@@ -60,6 +60,10 @@ def _parse_args():
              'Output folders and files will be labelled with this name. WARNING: do not provide a path')
 
     optional.add_argument(
+        '-p', '--path', dest='out_path', required=False, metavar='OUT_PATH',
+        help="pass the path to the output dir. Overwrite config.file")
+
+    optional.add_argument(
         '-e', '--evalue', dest='evalue', required=False, metavar='N', type=float,
         help='E-value cutoff for BLAST searches. '
              'Allowed formats, 0.001 or 1e-03 (Default: %.0e)' % BuscoConfig.DEFAULT_ARGS_VALUES['evalue'])
